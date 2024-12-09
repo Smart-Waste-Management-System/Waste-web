@@ -5,11 +5,9 @@ import BoxWindow from "./components/BoxWindow";
 import { useDispatch, useSelector } from "react-redux";
 import { loadEmployee } from "../../store/employeeManagerSlice";
 import { useAction } from "./components/ActionContext";
-// import UserUploader from "../../assets/fakedata/user/regisfake";
 
 function EmployeeManagement() {
   const { dataEmployee } = useSelector((state) => state.employee_manager);
-  const [filter, setFilter] = useState("all");
   const { action, setAction } = useAction();
   const [query, setQuery] = useState("");
   const handleReload = () => {
@@ -17,28 +15,24 @@ function EmployeeManagement() {
   };
   const dispatch = useDispatch();
 
-  const handleSelectChange = (event) => {
-    setFilter(event.target.value);
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8080/users/listUser");
-        const data = await response.json();
-        if (data && Array.isArray(data.info)) {
-          dispatch(loadEmployee(data.info));
+        const response = await fetch("/wastebin/users");
+        const result = await response.json();
+        if (result && result.success && Array.isArray(result.data)) {
+          dispatch(loadEmployee(result.data));
         } else {
-          console.error("Unexpected response format:", data);
+          console.error("Unexpected response format:", result);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
+  
     fetchData();
     return () => {
-      dispatch(loadEmployee([]));
+      dispatch(loadEmployee([])); // Xóa dữ liệu khi component unmount
     };
   }, [dispatch]);
 
@@ -70,17 +64,13 @@ function EmployeeManagement() {
       </div>
       <div className="h-full w-full flex-1 rounded-xl bg-white p-4">
         <div className="flex flex-row justify-between">
-          <h1 className="ml-1 font-bold">Employee Management</h1>
+          <h1 className="ml-1 font-bold">Bảng Nhân Sự</h1>
           <div className="App">
-            <button onClick={handleReload}>Reload</button>
+            <button onClick={handleReload}>Tải lại</button>
           </div>
-          {/* <div className="relative mr-3 flex flex-row">
-            <UserUploader />
-          </div> */}
         </div>
         <div className="relative mt-5 h-[calc(100vh-200px)] overflow-auto">
           <TableManager
-            filter={filter}
             dataEmployee={Array.isArray(dataEmployee) ? dataEmployee : []}
             query={query}
           />

@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useAction } from "./ActionContext";
 import { Input } from "./Input";
 import { useDispatch } from "react-redux";
-import {
-  addEquipment,
-  removeEquipmentWithID,
-  editEquipment,
-} from "../../../store/equipmentManagerSlice";
+import { removeEquipmentWithID, editEquipment } from "../../../store/equipmentManagerSlice";
+import ReportDetail from "./ReportDetail"; // Giả sử bạn đã có component ReportDetail
 
-function BoxWindow(props) {
-  const { action, setActionDefault, setAction } = useAction();
-  const { dataEquipment } = props;
-  const elementModify = dataEquipment.find((item) => item.id === action.id) || {};
-  const [newEquipment, setNewEquipment] = useState({
+const BoxWindow = ({ dataEquipment }) => {
+  const { action, setActionDefault } = useAction();
+  const dispatch = useDispatch();
+
+  const [formData, setFormData] = useState({
     address: "",
-    area_id: "56152651-efdf-4ec5-a5bf-cc1c0ee07f45",
     weight: "",
     remaining_fill: "",
     air_quality: "",
@@ -22,311 +18,186 @@ function BoxWindow(props) {
     latitude: "",
     longitude: "",
   });
-  const [updatedElementModify, setUpdatedElementModify] = useState({});
+
+  const [report, setReport] = useState(null); // State để lưu báo cáo gần nhất
+  const [error, setError] = useState(""); // State để lưu thông báo lỗi
+
+  const elementModify =
+    dataEquipment.find((item) => item.id === action.id) || {};
 
   useEffect(() => {
     if (action.isEdit && elementModify) {
-      setUpdatedElementModify(elementModify);
+      setFormData((prev) => ({
+        ...prev,
+        ...elementModify,
+      }));
+    } else if (action.isRead) {
+      setFormData({ ...elementModify });
+    } else if (action.isAdd) {
+      setFormData({
+        address: "",
+        weight: "",
+        remaining_fill: "",
+        air_quality: "",
+        water_level: "",
+        latitude: "",
+        longitude: "",
+      });
     }
   }, [action, elementModify]);
 
-  const handleInputChangeCreate = (key, value) => {
-    setNewEquipment((prevState) => ({
-      ...prevState,
-      [key.toLowerCase()]: value,
-    }));
+  const renderInputs = () => {
+    const inputFields = [
+      { title: "Cân nặng(kg)", name: "weight", type: "number" },
+      { title: "Phần còn trống(%)", name: "remaining_fill", type: "number" },
+      { title: "Nồng độ khí thối", name: "air_quality", type: "number" },
+      { title: "Kinh độ", name: "latitude", type: "text" },
+      { title: "Vĩ độ", name: "longitude", type: "text" },
+      { title: "Địa chỉ", name: "address", type: "text" },
+    ];
+
+    return inputFields.map((field) => (
+      <Input
+        key={field.name}
+        title={field.title}
+        placeholder={formData[field.name] || `Nhập ${field.title}`}
+        type={field.type}
+        status={action.isRead ? "read" : "edit"}
+        name={field.name}
+        onChange={(key, value) => handleInputChange(key, value)}
+      />
+    ));
   };
 
-  const handleInputChangeEdit = (key, value) => {
-    setUpdatedElementModify((prevState) => ({
-      ...prevState,
-      [key.toLowerCase()]: value,
-    }));
-  };
-
-  const dispatch = useDispatch();
-  const handleRemoveWithID = async (id) => {
+  const handleGetReport = useCallback(async () => {
+    setError(""); // Xóa lỗi cũ trước khi gọi API
     try {
-      const response = await fetch(`http://localhost:8080/trashBin/${id}`, {
+      const response = await fetch(`/wastebin/reports/last/${action.id}`);
+      if (response.ok) {
+        const rs = await response.json();
+        setReport(rs.data);
+      } else {
+        setError("Không thể lấy báo cáo gần nhất. Hãy thử lại sau!");
+        console.error("Lỗi khi lấy báo cáo gần nhất.");
+      }
+    } catch (error) {
+      setError("Có lỗi xảy ra trong quá trình gọi API.");
+      console.error("Lỗi trong quá trình gọi API:", error);
+    }
+  }, [action.id]);
+
+  const handleRemove = useCallback(async () => {
+    try {
+      const response = await fetch(`/wastebin/${action.id}`, {
         method: "DELETE",
       });
+  
       if (response.ok) {
-        dispatch(removeEquipmentWithID(id));
-        setActionDefault();
-        console.log(`Equipment with ID ${id} has been successfully removed.`);
-      } else {
-        console.error("Failed to remove equipment. Status code:", response.status);
-      }
-    } catch (error) {
-      console.error("Error occurred while removing equipment:", error);
-    }
-  };
-
-  const handleAddEquipment = async (equipmentData) => {
-    try {
-      const response = await fetch("http://localhost:8080/trashBin/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(equipmentData),
-      });
-
-      if (response.ok) {
-        console.log("Equipment has been successfully added.");
-        setNewEquipment({
-          address: "",
-          area_id: "56152651-efdf-4ec5-a5bf-cc1c0ee07f45",
-          weight: "",
-          remaining_fill: "",
-          air_quality: "",
-          water_level: "",
-          latitude: "",
-          longitude: "",
-        });
+        alert("Xóa thiết bị thành công!");
+        dispatch(removeEquipmentWithID(action.id));
         setActionDefault();
       } else {
-        console.error("Failed to add equipment. Status code:", response.status);
+        const errorData = await response.json();
+        alert(`Không thể xóa thiết bị. Lỗi: ${errorData.message || "Unknown error"}`);
+        console.error("Lỗi khi xóa thiết bị:", errorData);
       }
     } catch (error) {
-      console.error("Error occurred while adding equipment:", error);
+      alert("Có lỗi xảy ra khi gọi API. Vui lòng thử lại sau!");
+      console.error("Lỗi khi gọi API DELETE:", error);
     }
-  };
+  }, [dispatch, action.id, setActionDefault]);
+  
 
-  const handleEditEquipment = async (newE) => {
-    const newEWithId = {
-      ...newE,
-      id: action.id,
-    };
+  const handleInputChange = useCallback((key, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  }, []);
 
-    try {
-      const response = await fetch(`http://localhost:8080/trashBin/${newEWithId.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newEWithId),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update equipment");
-      }
-
-      dispatch(editEquipment(newEWithId));
-      setUpdatedElementModify({});
-      setActionDefault();
-    } catch (error) {
-      console.error("Error updating equipment:", error);
-    }
-  };
+  const hasReportOrError = report || error;
 
   return (
-    <div className={`absolute left-0 top-0 z-10 ${action.isRead || action.isEdit || action.isRemove || action.isAdd ? "" : "hidden"} h-full w-full rounded-xl`}>
-      <div className="h-full w-full bg-black opacity-30"></div>
-
-      {action.isRead || action.isEdit || action.isRemove || action.isAdd ? (
-        <div className="fixed left-2/4 top-2/4 z-20 w-2/5 -translate-x-2/4 -translate-y-2/4 overflow-hidden rounded-xl bg-white pb-4">
-          <div className="relative w-full">
-            <div className="flex flex-col gap-7">
-              {action.isRead || action.isEdit ? (
-                <div className="mt-5 flex flex-col gap-1 px-10">
-                  <Input
-                    title="ID"
-                    placeholder={elementModify.id}
-                    type="text"
-                    status="read"
-                    name="id"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <Input
-                    title="Weight"
-                    placeholder={elementModify.weight}
-                    type="number"
-                    status={`${action.isRead ? "read" : "edit"}`}
-                    name="weight"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <Input
-                    title="Remaining Fill"
-                    placeholder={elementModify.remaining_fill}
-                    type="number"
-                    status={`${action.isRead ? "read" : "edit"}`}
-                    name="remaining_fill"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <Input
-                    title="Air Quality"
-                    placeholder={elementModify.air_quality}
-                    type="number"
-                    status={`${action.isRead ? "read" : "edit"}`}
-                    name="air_quality"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <Input
-                    title="Water Level"
-                    placeholder={elementModify.water_level}
-                    type="number"
-                    status={`${action.isRead ? "read" : "edit"}`}
-                    name="water_level"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <Input
-                    title="Latitude"
-                    placeholder={elementModify.latitude}
-                    type="text"
-                    status={`${action.isRead ? "read" : "edit"}`}
-                    name="latitude"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <Input
-                    title="Longitude"
-                    placeholder={elementModify.longitude}
-                    type="text"
-                    status={`${action.isRead ? "read" : "edit"}`}
-                    name="longitude"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <Input
-                    title="Address"
-                    placeholder={elementModify.address}
-                    type="text"
-                    status={`${action.isRead ? "read" : "edit"}`}
-                    name="address"
-                    onChange={handleInputChangeEdit}
-                  />
-                  <div className="flex flex-row justify-center gap-2 mt-4">
-                    <button
-                      className="w-[20%] rounded-lg bg-[#FAFAFA] px-4 py-3 text-center text-xs font-extralight uppercase text-black shadow-lg"
-                      onClick={setActionDefault}
-                    >
-                      Cancel
-                    </button>
-                    {action.isEdit ? (
-                      <button
-                        className="w-[20%] rounded-lg bg-[#57A75A] px-4 py-3 text-center text-xs font-extralight uppercase text-white shadow-lg"
-                        onClick={() => handleEditEquipment(updatedElementModify)}
-                      >
-                        Save
-                      </button>
-                    ) : (
-                      <button
-                        className="w-[20%] rounded-lg bg-[#57A75A] px-4 py-3 text-center text-xs font-extralight uppercase text-white shadow-lg"
-                        onClick={() => {
-                          setAction({
-                            ...action,
-                            isEdit: true,
-                            isRead: false,
-                          });
-                        }}
-                      >
-                        Edit
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : null}
-              {action.isRemove && (
-                <div className="relative flex flex-col items-center text-center py-4">
-                  <h4>Confirmation</h4>
-                  <p className="w-3/4">Are you sure you want to remove this item from the list?</p>
-                  <div className="mt-8 flex w-full justify-center gap-2">
-                    <button
-                      className="w-[22%] rounded-lg bg-[#57A75A] px-4 py-3 text-center text-xs font-extralight uppercase text-white shadow-lg"
-                      onClick={setActionDefault}
-                    >
-                      No
-                    </button>
-                    <button
-                      className="w-[22%] rounded-lg bg-[#FAFAFA] px-4 py-3 text-center text-xs font-extralight uppercase text-black shadow-lg"
-                      onClick={() => handleRemoveWithID(action.id)}
-                    >
-                      Yes
-                    </button>
-                  </div>
-                </div>
-              )}
-              {action.isAdd && (
-                <div className="mt-5 flex flex-col gap-1 px-10">
-                  <div className="grid grid-cols-1 gap-3">
-                    <Input
-                      title="Weight"
-                      placeholder=""
-                      type="text"
-                      status="add"
-                      name="weight"
-                      onChange={handleInputChangeCreate}
-                    />
-                    <Input
-                      title="Remaining Fill"
-                      placeholder=""
-                      type="text"
-                      status="add"
-                      name="remaining_fill"
-                      onChange={handleInputChangeCreate}
-                    />
-                    <Input
-                      title="Air Quality"
-                      placeholder=""
-                      type="text"
-                      status="add"
-                      name="air_quality"
-                      onChange={handleInputChangeCreate}
-                    />
-                    <Input
-                      title="Water Level"
-                      placeholder=""
-                      type="text"
-                      status="add"
-                      name="water_level"
-                      onChange={handleInputChangeCreate}
-                    />
-                    <Input
-                      title="Latitude"
-                      placeholder=""
-                      type="text"
-                      status="add"
-                      name="latitude"
-                      onChange={handleInputChangeCreate}
-                    />
-                    <Input
-                      title="Longitude"
-                      placeholder=""
-                      type="text"
-                      status="add"
-                      name="longitude"
-                      onChange={handleInputChangeCreate}
-                    />
-                    <Input
-                      title="Address"
-                      placeholder=""
-                      type="text"
-                      status="add"
-                      name="address"
-                      onChange={handleInputChangeCreate}
-                    />
-                  </div>
-                  <div className="flex flex-row justify-center gap-2 mt-4">
-                    <button
-                      className="w-[20%] rounded-lg bg-[#FAFAFA] px-4 py-3 text-center text-xs font-extralight uppercase text-black shadow-lg"
-                      onClick={setActionDefault}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="w-[20%] rounded-lg bg-[#57A75A] px-4 py-3 text-center text-xs font-extralight uppercase text-white shadow-lg"
-                      onClick={() => handleAddEquipment(newEquipment)}
-                    >
-                      Save
-                    </button>
-                  </div>
+    <div
+      className={`absolute inset-0 z-10 ${
+        action.isAdd || action.isEdit || action.isRead || action.isRemove
+          ? ""
+          : "hidden"
+      }`}
+    >
+      <div className="h-full w-full bg-black bg-opacity-30"></div>
+      <div className="fixed left-1/2 top-1/2 z-20 w-5/6 max-w-4xl -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white shadow-lg">
+        <div className="p-6">
+          <div className="mb-4 text-xl font-bold text-gray-700">
+            {action.isAdd && "Thêm thiết bị mới"}
+            {action.isEdit && "Chỉnh sửa thiết bị"}
+            {action.isRead && "Xem thông tin thiết bị"}
+            {action.isRemove && "Xóa thiết bị"}
+          </div>
+          {(action.isRead || action.isEdit || action.isAdd) && (
+            <div className={`flex ${hasReportOrError ? "space-x-6" : ""}`}>
+              <div
+                className={`space-y-4 ${
+                  hasReportOrError ? "w-2/3" : "w-full"
+                }`}
+              >
+                {renderInputs()}
+              </div>
+              {hasReportOrError && (
+                <div className="w-1/3">
+                  {error && (
+                    <div className="text-red-500 text-sm mb-2">{error}</div>
+                  )}
+                  {report && !error && <ReportDetail report={report} />}
                 </div>
               )}
             </div>
-          </div>
+          )}
+
+          {(action.isRead || action.isAdd || action.isEdit) && (
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                className="rounded-lg bg-gray-200 px-4 py-2"
+                onClick={setActionDefault}
+              >
+                Hủy
+              </button>
+              <button
+                className="rounded-lg bg-green-500 px-4 py-2 text-white"
+                onClick={handleGetReport}
+              >
+                Xem report gần nhất
+              </button>
+            </div>
+          )}
+          {action.isRemove && (
+            <div className="text-center">
+              <h4 className="mb-4 text-xl font-bold text-gray-700">
+                Xác nhận xóa
+              </h4>
+              <p className="mt-2 text-gray-600">
+                Bạn có chắc chắn muốn xóa báo cáo này không?
+              </p>
+              <div className="mt-4 flex justify-center gap-4">
+                <button
+                  className="rounded-lg bg-gray-200 px-4 py-2"
+                  onClick={setActionDefault}
+                >
+                  No
+                </button>
+                <button
+                  className="rounded-lg bg-red-500 px-4 py-2 text-white"
+                  onClick={handleRemove}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      ) : null}
+      </div>
     </div>
   );
-}
+};
 
 export default React.memo(BoxWindow);

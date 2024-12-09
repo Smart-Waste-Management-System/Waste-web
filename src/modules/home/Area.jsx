@@ -6,27 +6,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { loadArea } from "../../store/areaManagerSlice";
 import { useAction } from "./components/ActionContext";
 
+
 function Area() {
   const { dataArea } = useSelector((state) => state.area_manager);
   const { action, setAction } = useAction();
   const [query, setQuery] = useState("");
-  const dispatch = useDispatch();
   const handleReload = () => {
     window.location.reload();
   };
-  const handleSelectChange = (event) => {
-    setFilter(event.target.value);
-  };
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8080/area");
-        const data = await response.json();
-        if (data && Array.isArray(data.info)) {
-          dispatch(loadArea(data.info));
+        const response = await fetch("/wastebin/reports/all");
+        const result = await response.json();
+        if (result && result.success && Array.isArray(result.data)) {
+          dispatch(loadArea(result.data));
         } else {
-          console.error("Unexpected response format:", data);
+          console.error("Unexpected response format:", result);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -60,16 +59,16 @@ function Area() {
         </div>
         <button
           className="rounded-xl border bg-white p-3"
-          onClick={() => setAction({ ...action, isAdd: true })}
+          // onClick={() => setAction({ ...action, isAdd: true })}
         >
           <IconPlus />
         </button>
       </div>
       <div className="h-full w-full flex-1 rounded-xl bg-white p-4">
         <div className="flex flex-row justify-between">
-          <h1 className="ml-1 font-bold">Area Management</h1>
+          <h1 className="ml-1 font-bold">Quản lý báo cáo dữ liệu</h1>
           <div className="App">
-            <button onClick={handleReload}>Reload</button>
+            <button onClick={handleReload}>Tải lại</button>
           </div>
         </div>
         <div className="relative mt-5 h-[calc(100vh-200px)] overflow-auto">

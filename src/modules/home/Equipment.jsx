@@ -15,17 +15,13 @@ function Equipment() {
   };
   const dispatch = useDispatch();
 
-  const handleSelectChange = (event) => {
-    setFilter(event.target.value);
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://www.waste.congmanh18.click/wastebin/");
+        const response = await fetch("/wastebin/info/all");
         const data = await response.json();
-        if (data && Array.isArray(data.info)) {
-          dispatch(loadEquipment(data.info));
+        if (data && data.success && Array.isArray(data.data)) {
+          dispatch(loadEquipment(data.data));
         } else {
           console.error("Unexpected response format:", data);
         }
@@ -61,16 +57,16 @@ function Equipment() {
         </div>
         <button
           className="rounded-xl border bg-white p-3"
-          onClick={() => setAction({ ...action, isAdd: true })}
+          // onClick={() => setAction({ ...action, isAdd: true })}
         >
           <IconPlus />
         </button>
       </div>
       <div className="h-full w-full flex-1 rounded-xl bg-white p-4">
         <div className="flex flex-row justify-between">
-          <h1 className="ml-1 font-bold">Equipment Management</h1>
+          <h1 className="ml-1 font-bold">Quản lý thiết bị</h1>
           <div className="App">
-            <button onClick={handleReload}>Reload</button>
+            <button onClick={handleReload}>Tải lại</button>
           </div>
         </div>
         <div className="relative mt-5 h-[calc(100vh-200px)] overflow-auto">

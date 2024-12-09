@@ -2,59 +2,78 @@ import React, { useEffect, useState } from "react";
 import { IconEdit, IconEye, IconTrash } from "../assets/Icon";
 import { useAction } from "./ActionContext";
 
-function TableManager(props) {
-  const { dataEmployee, filter, query } = props;
+const TableManager = ({ dataEmployee, filter, query, removeEmployee }) => {
   const { action, setAction } = useAction();
   const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
-    if (Array.isArray(dataEmployee)) {
-      const lowerCaseQuery = query.toLowerCase();
-      const filteredResult = dataEmployee.filter((item) => {
-        return Object.values(item).some((value) =>
-          value.toString().toLowerCase().includes(lowerCaseQuery)
-        );
+    // Lọc dữ liệu dựa trên query
+    const lowerCaseQuery = query ? query.toLowerCase() : '';
+    const filteredResult = dataEmployee.filter((item) => {
+      return Object.values(item).some((value) => {
+        if (value && typeof value === "string") {
+          return value.toLowerCase().includes(lowerCaseQuery);
+        }
+        return false;
       });
-      setFilteredData(filteredResult);
-    }
+    });
+    setFilteredData(filteredResult);
   }, [query, dataEmployee]);
+
+  const handleRemove = (id) => {
+    removeEmployee(id); // Gọi hàm xóa đã truyền từ component cha
+  };
 
   return (
     <table className="w-full text-center text-sm font-light">
       <thead className="bg-[#B2E9A1] text-sm font-bold text-black">
         <tr>
-          <th scope="col" className="py-6 text-center">Name(s)</th>
-          <th scope="col" className="py-6 text-center">Role</th>
-          <th scope="col" className="py-6 text-center">Category</th>
-          <th scope="col" className="py-6 text-center">Gender</th>
+          <th scope="col" className="py-6 text-center">Số điện thoại</th>
+          <th scope="col" className="py-6 text-left">Họ và tên đệm</th>
+          <th scope="col" className="py-6 text-left">Tên</th>
+          <th scope="col" className="py-6 text-center">Giới tính</th>
+          <th scope="col" className="py-6 text-left">Email</th>
+          <th scope="col" className="py-6 text-center">Vai trò</th>
+          <th scope="col" className="py-6 text-center">Ca</th>
           <th scope="col" className="py-6 text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
-        {filteredData.map((item) => (
-          <tr key={item.id} className="odd:bg-white even:bg-[#B2E9A1]">
-            <th scope="row" className="whitespace-nowrap font-normal text-gray-900">{item.first_name} {item.middle_name } {item.last_name}</th>
-            <td className="py-2">{item.role_name}</td>
-            <td className="py-2">{item.category}</td>
-            <td className="py-2">{item.gender}</td>
-            <td className="py-2">
-              <div className="flex flex-row items-center justify-center gap-2">
-                <button onClick={() => setAction({ ...action, id: item.id, isRead: true, isEdit: false, isRemove: false })}>
-                  <IconEye />
-                </button>
-                <button onClick={() => setAction({ ...action, id: item.id, isRead: false, isEdit: true, isRemove: false })}>
-                  <IconEdit />
-                </button>
-                <button onClick={() => setAction({ ...action, id: item.id, isRead: false, isEdit: false, isRemove: true })}>
-                  <IconTrash />
-                </button>
-              </div>
+        {filteredData.length ? (
+          filteredData.map((item) => (
+            <tr key={item.id || item.ID} className="odd:bg-white even:bg-[#B2E9A1]">
+              <td className="py-2">{item.Phone || "N/A"}</td>
+              <td className="py-2 text-left">{item.FirstName || "N/A"}</td>
+              <td className="py-2 text-left">{item.LastName || "N/A"}</td>
+              <td className="py-2">{item.Gender || "N/A"}</td>
+              <td className="py-2 text-left">{item.Email || "N/A"}</td>
+              <td className="py-2">{item.Role || "N/A"}</td>
+              <td className="py-2">{item.Category || "N/A"}</td>
+              <td className="py-2">
+                <div className="flex flex-row items-center justify-center gap-2">
+                  <button onClick={() => setAction({ id: item.id || item.ID, isRead: true })}>
+                    <IconEye />
+                  </button>
+                  <button onClick={() => setAction({ id: item.id || item.ID, isEdit: true })}>
+                    <IconEdit />
+                  </button>
+                  <button onClick={() => setAction({ id: item.id || item.ID, isRemove: true })}>
+                    <IconTrash />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={6} className="py-4 text-center text-gray-500">
+              Không tìm thấy danh sách nhân viên
             </td>
           </tr>
-        ))}
+        )}
       </tbody>
     </table>
   );
-}
+};
 
 export default React.memo(TableManager);
