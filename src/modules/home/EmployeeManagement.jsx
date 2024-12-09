@@ -10,10 +10,13 @@ function EmployeeManagement() {
   const { dataEmployee } = useSelector((state) => state.employee_manager);
   const { action, setAction } = useAction();
   const [query, setQuery] = useState("");
-  const handleReload = () => {
-    window.location.reload();
-  };
   const dispatch = useDispatch();
+
+  const [reload, setReload] = useState(false);  // State to trigger re-render
+
+  const handleReload = () => {
+    setReload((prev) => !prev);  // Toggle reload state to trigger re-render
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,12 +32,12 @@ function EmployeeManagement() {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
     return () => {
       dispatch(loadEmployee([])); // Xóa dữ liệu khi component unmount
     };
-  }, [dispatch]);
+  }, [dispatch, reload]);  // Re-run effect when reload changes
 
   return (
     <div className="flex flex-col gap-3">
@@ -73,6 +76,7 @@ function EmployeeManagement() {
           <TableManager
             dataEmployee={Array.isArray(dataEmployee) ? dataEmployee : []}
             query={query}
+            setReload={setReload}  // Pass setReload to TableManager if needed
           />
         </div>
       </div>

@@ -22,7 +22,7 @@ function TrashPrediction() {
   // Fetch waste bin data including Weight and RemainingFill from the API
   const fetchWasteBinData = async () => {
     try {
-      const response = await fetch(`/wastebin/${fixedId}`);
+      const response = await fetch(`/api/wastebin/${fixedId}`);
       const data = await response.json();
       setWasteBinData(data.data);
       setCurrentFill(data.data.remaining_fill);
@@ -35,7 +35,7 @@ function TrashPrediction() {
   useEffect(() => {
     const fetchExponential = async () => {
       try {
-        const response = await fetch('/wastebin/ml/exponential');
+        const response = await fetch('/api/wastebin/ml/exponential');
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -91,7 +91,7 @@ function TrashPrediction() {
   useEffect(() => {
     const fetchSVMData = async () => {
       try {
-        const response = await fetch(`/wastebin/ml/svm/${fixedId}`);
+        const response = await fetch(`/api/wastebin/ml/svm/${fixedId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
