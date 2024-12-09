@@ -9,6 +9,12 @@ import { removeEmployeeWithID } from "../../../store/employeeManagerSlice";
 function BoxWindow({ dataEmployee }) {
   const { action, setActionDefault, setAction } = useAction();
   const dispatch = useDispatch();
+  const [reload, setReload] = useState(false);  // State to trigger re-render
+
+  const handleReload = () => {
+    setReload((prev) => !prev);  // Toggle reload state to trigger re-render
+  };
+
 
   const elementModify = dataEmployee.find(item => item.ID === action.id) || {};
   
@@ -36,10 +42,10 @@ function BoxWindow({ dataEmployee }) {
   
       if (response.ok) {
         console.log("Employee removed successfully");
-        // Gọi hàm để cập nhật lại dữ liệu trong component cha hoặc global state
-        // Giả sử hàm `removeEmployee` được truyền qua props hoặc từ context
-        dispatch(removeEmployeeWithID(action.id)); // Giả sử bạn đang sử dụng Redux
+        dispatch(removeEmployeeWithID(action.id)); // Redux action to update global state
         setActionDefault(); // Đặt lại trạng thái action
+        window.location.reload(); // Reload the page after removal
+        alert("Employee removed successfully!"); // Hiển thị thông báo thành công
       } else {
         console.error("Failed to remove employee. Status:", response.status);
       }
@@ -48,8 +54,6 @@ function BoxWindow({ dataEmployee }) {
     }
   };
   
-  
-
   const handleAddEmployee = async (employeeData) => {
     if (Object.values(employeeData).some(value => !value)) {
       console.error("Missing required fields");
