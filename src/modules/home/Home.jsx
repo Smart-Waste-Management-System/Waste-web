@@ -3,7 +3,7 @@ import TabBar from "./components/TabBar";
 import { IconLogOut } from "./assets/Icon";
 import HomeContent from "./HomeContent"; // Placeholder for other content components
 import Equipment from "./Equipment"; // Placeholder
-import Transaction from "./TrashPrediction"; // Placeholder
+import DashBoard from "./Dashboard"; // Placeholder
 import EmployeeManagement from "./EmployeeManagement"; // Import the new component
 import Area from "./Area";
 
@@ -19,7 +19,7 @@ function Home() {
       case "equipment":
         return <Equipment />;
       case "transaction":
-        return <Transaction />;
+        return <DashBoard />;
       case "area":
         return <Area />;
       default:
