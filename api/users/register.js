@@ -1,32 +1,34 @@
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-      const { email, password, first_name, last_name, phone, category, gender, role } = req.body;
-      console.log(req.body);
-
-      if (!phone || !password) {
+      const { Email, Password, First_Name, Last_Name, Phone, Category, Gender, Role } = req.body;
+  
+      if (!Phone || !Password) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
-    
+  
+      const mappedBody = {
+        email: Email,
+        password: Password,
+        first_name: First_Name,
+        last_name: Last_Name,
+        phone: Phone,
+        category: Category,
+        gender: Gender,
+        role: Role,
+      };
+  
       try {
-        console.log("Sending request to external API...");
-        const response = await fetch(`http://14.225.255.120/users/register`, {
+        const response = await fetch('http://14.225.255.120/users/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, first_name, last_name, phone, category, gender, role }),
+          body: JSON.stringify(mappedBody),
         });
   
-        let data;
-        try {
-          data = await response.json();
-        } catch (err) {
-          console.error("Error parsing JSON from external API:", err);
-          return res.status(500).json({ error: 'Invalid response from external API' });
-        }
+        const data = await response.json();
   
         if (response.ok) {
           return res.status(201).json({ message: 'User registered successfully', user: data });
         } else {
-          console.error("External API error:", data.error);
           return res.status(response.status).json({ error: data.error || 'Registration failed' });
         }
       } catch (error) {

@@ -19,7 +19,7 @@ function BoxWindow({ dataEmployee }) {
   const elementModify = dataEmployee.find(item => item.ID === action.id) || {};
   
   const [newEmployee, setNewEmployee] = useState({
-    category: "", gender: "", first_name: "", last_name: "", phone: "", role: "", password: "", email: ""
+    Category: "", Gender: "", First_Name: "", Last_Name: "", Phone: "", Role: "", Password: "", Email: ""
   });
  
   const handleInputChangeCreate = (key, value) => {
@@ -67,8 +67,9 @@ function BoxWindow({ dataEmployee }) {
         body: JSON.stringify(employeeData)
       });
       console.log(employeeData);
+
       if (response.ok) {
-        setNewEmployee({ first_Name: "", last_name: "", gender: "", role: "", phone: "", password: "", category: "", email: "" });
+        setNewEmployee({ First_Name: "", Last_Name: "", Gender: "", Role: "", Phone: "", Password: "", Category: "", Email: "" });
         setActionDefault();
       } else {
         console.error("Failed to register employee. Status:", response.status);
@@ -86,13 +87,13 @@ function BoxWindow({ dataEmployee }) {
   
     // Trộn dữ liệu: nếu trường nào không được chỉnh sửa, giữ giá trị ban đầu từ elementModify
     const payload = {
-      first_name: newEmployee.first_name || elementModify.FirstName,
-      last_name: newEmployee.last_name || elementModify.LastName,
-      phone: newEmployee.phone || elementModify.Phone,
-      email: newEmployee.email || elementModify.Email,
-      gender: newEmployee.gender || elementModify.Gender,
-      role: newEmployee.role || elementModify.Role,
-      category: newEmployee.category || elementModify.Category
+      first_name: newEmployee.First_Name || elementModify.FirstName,
+      last_name: newEmployee.Last_Name || elementModify.LastName,
+      phone: newEmployee.Phone || elementModify.Phone,
+      email: newEmployee.Email || elementModify.Email,
+      gender: newEmployee.Gender || elementModify.Gender,
+      role: newEmployee.Role || elementModify.Role,
+      category: newEmployee.Category || elementModify.Category
     };
   
     try {
@@ -105,7 +106,7 @@ function BoxWindow({ dataEmployee }) {
       if (response.ok) {
         console.log("Employee updated successfully");
         setNewEmployee({
-          first_name: "", last_name: "", gender: "", role: "", phone: "", password: "", category: "", email: ""
+          First_Name: "", Last_Name: "", Gender: "", Role: "", Phone: "", Password: "", Category: "", Email: ""
         });
         setActionDefault();
       } else {
@@ -157,15 +158,15 @@ function BoxWindow({ dataEmployee }) {
           </div>
           <div className="flex flex-col gap-7 mt-5 px-10">
             <div id="formInput" className="flex flex-col gap-1">
-              {renderInputEdit("Số điện thoại", "Phone", elementModify.Phone, newEmployee.phone, "tel", action.isRead ? "read" : "edit")}
-              {renderInputEdit("Email", "Email", elementModify.Email, newEmployee.email, "email", action.isRead ? "read" : "edit")}
+              {renderInputEdit("Số điện thoại", "Phone", elementModify.Phone, newEmployee.Phone, "tel", action.isRead ? "read" : "edit")}
+              {renderInputEdit("Email", "Email", elementModify.Email, newEmployee.Email, "email", action.isRead ? "read" : "edit")}
               <div className="grid grid-cols-2 gap-2">
-                {renderInputEdit("Họ và tên đệm", "First_Name", elementModify.FirstName, newEmployee.first_name, "text", action.isRead ? "read" : "edit")}
-                {renderInputEdit("Tên", "Last_Name", elementModify.LastName, newEmployee.last_name, "text", action.isRead ? "read" : "edit")}
+                {renderInputEdit("Họ và tên đệm", "First_Name", elementModify.FirstName, newEmployee.First_Name, "text", action.isRead ? "read" : "edit")}
+                {renderInputEdit("Tên", "Last_Name", elementModify.LastName, newEmployee.Last_Name, "text", action.isRead ? "read" : "edit")}
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {renderInputEdit("Giới tính", "Gender", elementModify.Gender, newEmployee.gender, "radio", action.isRead ? "read" : "edit")}
-                {renderInputEdit("Vai trò", "Role", elementModify.Role, newEmployee.role, "text", action.isRead ? "read" : "edit")}
+                {renderInputEdit("Giới tính", "Gender", elementModify.Gender, newEmployee.Gender, "radio", action.isRead ? "read" : "edit")}
+                {renderInputEdit("Vai trò", "Role", elementModify.Role, newEmployee.Role, "text", action.isRead ? "read" : "edit")}
               </div>
               {renderInputEdit("Hạng mục", "Category", elementModify.Category, newEmployee.Category, "text", action.isRead ? "read" : "edit")}
             </div>
@@ -222,18 +223,18 @@ function BoxWindow({ dataEmployee }) {
           </div>
           <div className="flex flex-col gap-7 mt-5 px-10">
             <div id="formInput" className="flex flex-col gap-1">
-              {renderInputCreate("Số điện thoại", "Phone", newEmployee.phone, newEmployee.phone, "tel")}
-              {renderInputCreate("Email", "Email", newEmployee.email, newEmployee.email, "email")}
-              {renderInputCreate("Mật khẩu", "Password", newEmployee.password, newEmployee.password, "password")}
+              {renderInputCreate("Số điện thoại", "Phone", newEmployee.Phone, newEmployee.Phone, "tel")}
+              {renderInputCreate("Email", "Email", newEmployee.Email, newEmployee.Email, "email")}
+              {renderInputCreate("Mật khẩu", "Password", newEmployee.Password, newEmployee.Password, "password")}
               <div className="grid grid-cols-2 gap-2">
-                {renderInputCreate("Họ và tên đệm", "First_Name", newEmployee.first_name, newEmployee.first_name)}
-                {renderInputCreate("Tên", "Last_Name", newEmployee.last_name, newEmployee.last_name)}
+                {renderInputCreate("Họ và tên đệm", "First_Name", newEmployee.First_Name, newEmployee.First_Name)}
+                {renderInputCreate("Tên", "Last_Name", newEmployee.Last_Name, newEmployee.Last_Name)}
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {renderInputCreate("Giới tính", "Gender", newEmployee.gender, newEmployee.gender, "radio")}
-                {renderInputCreate("Vai trò", "Role", newEmployee.role, newEmployee.role)}
+                {renderInputCreate("Giới tính", "Gender", newEmployee.Gender, newEmployee.Gender, "radio")}
+                {renderInputCreate("Vai trò", "Role", newEmployee.Role, newEmployee.Role)}
               </div>
-              {renderInputCreate("Hạng mục", "Category", newEmployee.category, newEmployee.category)}
+              {renderInputCreate("Hạng mục", "Category", newEmployee.Category, newEmployee.Category)}
             </div>
             <div className="flex flex-row justify-center gap-2 pt-4">
               <button className="w-[20%] rounded-lg bg-[#FAFAFA] px-4 py-3 text-center text-xs font-extralight uppercase text-black shadow-lg" onClick={setActionDefault}>
