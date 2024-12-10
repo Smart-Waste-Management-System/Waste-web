@@ -10,6 +10,7 @@ function Dashboard() {
   const [wasteBinData, setWasteBinData] = useState(null);
   const [exponential, setExponential] = useState([]);
   const [svmData, setSvmData] = useState(null);
+  const [report, setReport] = useState(null); // State để lưu báo cáo gần nhất
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentFill, setCurrentFill] = useState('');
