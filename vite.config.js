@@ -5,11 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/wastebin': {
-        target: 'http://14.225.255.120', // Địa chỉ backend của bạn
-        changeOrigin: true, // Giúp thay đổi nguồn gốc của yêu cầu nếu cần thiết
-        secure: true, // Nếu backend không sử dụng HTTPS
-        rewrite: (path) => path.replace(/^\/wastebin/, '/wastebin'), // Đảm bảo đường dẫn giữ nguyên
+      '/api': {
+        target: 'http://14.225.255.120',
+        changeOrigin: true,
+        secure: false, // Nếu backend không dùng HTTPS
+        rewrite: path => path.replace(/^\/api/, ''),
       },
     },
   },

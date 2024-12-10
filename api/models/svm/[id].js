@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-      const response = await fetch('http://14.225.255.120/models/svm', {
+      const response = await fetch(`http://14.225.255.120/models/svm/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(req.body),

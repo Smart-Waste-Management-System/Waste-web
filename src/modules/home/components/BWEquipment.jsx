@@ -72,7 +72,7 @@ const BoxWindow = ({ dataEquipment }) => {
   const handleGetReport = useCallback(async () => {
     setError(""); // Xóa lỗi cũ trước khi gọi API
     try {
-      const response = await fetch(`/api/wastebins/${action.id}reports/last/`);
+      const response = await fetch(`/api/wastebins/${action.id}/reports/last`);
       if (response.ok) {
         const rs = await response.json();
         setReport(rs.data);
