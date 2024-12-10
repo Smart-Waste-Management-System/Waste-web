@@ -36,7 +36,7 @@ function BoxWindow({ dataEmployee }) {
     }
   
     try {
-      const response = await fetch(`/wastebin/users/${action.id}`, {
+      const response = await fetch(`/api/users/${action.id}/remove`, {
         method: "DELETE",
       });
   
@@ -61,7 +61,7 @@ function BoxWindow({ dataEmployee }) {
     }
 
     try {
-      const response = await fetch("wastebin/users/register", {
+      const response = await fetch("/api/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(employeeData)
@@ -96,7 +96,7 @@ function BoxWindow({ dataEmployee }) {
     };
   
     try {
-      const response = await fetch(`/wastebin/users/${action.id}`, {
+      const response = await fetch(`/api/users/${action.id}/edit`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -20,7 +20,7 @@ function Area() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/wastebin/reports/all");
+        const response = await fetch("/api/reports/all");
         const result = await response.json();
         if (result && result.success && Array.isArray(result.data)) {
           dispatch(loadArea(result.data));

@@ -31,36 +31,36 @@ const BoxWindow = ({ dataArea }) => {
     setFormData((prev) => ({ ...prev, [key.toLowerCase()]: value }));
   };
 
-  const handleSubmit = async () => {
-    const url = action.isAdd
-      ? "/wastebin/reports/create"
-      : `/wastebin/reports/${action.id}`;
-    const method = action.isAdd ? "POST" : "PUT";
+  // const handleSubmit = async () => {
+  //   const url = action.isAdd
+  //     ? "/wastebin/reports/create"
+  //     : `/wastebin/reports/${action.id}`;
+  //   const method = action.isAdd ? "POST" : "PUT";
 
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  //   try {
+  //     const response = await fetch(url, {
+  //       method,
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(formData),
+  //     });
 
-      if (response.ok) {
-        action.isAdd
-          ? dispatch(addArea(formData))
-          : dispatch(editArea({ ...formData, id: action.id }));
-        setActionDefault();
-        console.log("Operation succeeded.");
-      } else {
-        console.error(`Failed operation. Status: ${response.status}`);
-      }
-    } catch (error) {
-      console.error("Error occurred during operation:", error);
-    }
-  };
+  //     if (response.ok) {
+  //       action.isAdd
+  //         ? dispatch(addArea(formData))
+  //         : dispatch(editArea({ ...formData, id: action.id }));
+  //       setActionDefault();
+  //       console.log("Operation succeeded.");
+  //     } else {
+  //       console.error(`Failed operation. Status: ${response.status}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error occurred during operation:", error);
+  //   }
+  // };
 
   const handleRemove = async () => {
     try {
-      const response = await fetch(`/wastebin/reports/${action.id}`, {
+      const response = await fetch(`/api/reports/${action.id}/remove`, {
         method: "DELETE",
       });
       if (response.ok) {
@@ -131,7 +131,6 @@ const BoxWindow = ({ dataArea }) => {
               {(action.isAdd || action.isEdit) && (
                 <button
                   className="rounded-lg bg-green-500 px-4 py-2 text-white"
-                  onClick={handleSubmit}
                 >
                   {action.isAdd ? "Add" : "Save"}
                 </button>

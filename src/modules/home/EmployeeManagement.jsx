@@ -11,7 +11,6 @@ function EmployeeManagement() {
   const { action, setAction } = useAction();
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
-
   const [reload, setReload] = useState(false);  // State to trigger re-render
 
   const handleReload = () => {
@@ -21,7 +20,7 @@ function EmployeeManagement() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/wastebin/users");
+        const response = await fetch("/api/users/all");
         const result = await response.json();
         if (result && result.success && Array.isArray(result.data)) {
           dispatch(loadEmployee(result.data));

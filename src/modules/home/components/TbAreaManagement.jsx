@@ -41,7 +41,7 @@ function AreaTable(props) {
     try {
       // Kiểm tra type để xác định endpoint phù hợp
       const endpoint =
-        type === "users" ? `/wastebin/users/${id}` : `/wastebin/${id}`;
+        type === "users" ? `/api/users/${id}/info` : `/api/wastebin/${id}/info`;
       
       const response = await fetch(endpoint);
       if (!response.ok) {
