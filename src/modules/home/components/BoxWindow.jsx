@@ -54,29 +54,29 @@ function BoxWindow({ dataEmployee }) {
     }
   };
   
-  const handleAddEmployee = async (employeeData) => {
-    if (Object.values(employeeData).some(value => !value)) {
-      console.error("Missing required fields");
-      return;
-    }
+  // const handleAddEmployee = async (employeeData) => {
+  //   if (Object.values(employeeData).some(value => !value)) {
+  //     console.error("Missing required fields");
+  //     return;
+  //   }
 
-    try {
-      const response = await fetch("/api/users/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(employeeData)
-      });
+  //   try {
+  //     const response = await fetch("/api/users/register", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(employeeData)
+  //     });
 
-      if (response.ok) {
-        setNewEmployee({ First_Name: "", Last_Name: "", Gender: "", Role: "", Phone: "", Password: "", Category: "", Email: "" });
-        setActionDefault();
-      } else {
-        console.error("Failed to register employee. Status:", response.status);
-      }
-    } catch (error) {
-      console.error("Error registering employee:", error);
-    }
-  };
+  //     if (response.ok) {
+  //       setNewEmployee({ First_Name: "", Last_Name: "", Gender: "", Role: "", Phone: "", Password: "", Category: "", Email: "" });
+  //       setActionDefault();
+  //     } else {
+  //       console.error("Failed to register employee. Status:", response.status);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error registering employee:", error);
+  //   }
+  // };
 
   const handleEditEmployee = async () => {
     if (!action.id) {
@@ -239,9 +239,9 @@ function BoxWindow({ dataEmployee }) {
               <button className="w-[20%] rounded-lg bg-[#FAFAFA] px-4 py-3 text-center text-xs font-extralight uppercase text-black shadow-lg" onClick={setActionDefault}>
                 cancel
               </button>
-              <button className="w-[20%] rounded-lg bg-[#57A75A] px-4 py-3 text-center text-xs font-extralight uppercase text-white shadow-lg" onClick={() => handleAddEmployee(newEmployee)}>
+              {/* <button className="w-[20%] rounded-lg bg-[#57A75A] px-4 py-3 text-center text-xs font-extralight uppercase text-white shadow-lg" onClick={() => handleAddEmployee(newEmployee)}>
                 add
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
