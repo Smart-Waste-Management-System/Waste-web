@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { IconWasteBin } from "./assets/Icon";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'; // Import thêm ResponsiveContainer
+import ReportDetail from "./components/ReportDetail"; // Giả sử bạn đã có component ReportDetail
 
 
 function Dashboard() {
@@ -13,6 +14,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [currentFill, setCurrentFill] = useState('');
   const [weight, setWeight] = useState('');
+  const [showReportDetail, setShowReportDetail] = useState(false); // State để hiển thị báo cáo chi tiết
+
 
   const fixedId = '0193859c-1606-7a06-8d73-a0b456a33b3a';
 
@@ -28,20 +31,34 @@ function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    const fetchExponential = async () => {
-      try {
-        const response = await fetch('/api/models/expo');
-        const result = await response.json();
-        if (result.success && result.data) {
-          setExponential(result.data);
-        }
-      } catch (error) {
-        console.error('Error fetching exponential data:', error);
+  const handleGetReport = useCallback(async () => {
+    setError(""); // Xóa lỗi cũ trước khi gọi API
+    try {
+      const response = await fetch(`/api/wastebins/${fixedId}/reports/last`);
+      if (response.ok) {
+        const rs = await response.json();
+        setReport(rs.data);
+      } else {
+        setError("Không thể lấy báo cáo gần nhất. Hãy thử lại sau!");
+        console.error("Lỗi khi lấy báo cáo gần nhất.");
       }
-    };
-    fetchExponential();
-  }, []);
+    } catch (error) {
+      setError("Có lỗi xảy ra trong quá trình gọi API.");
+      console.error("Lỗi trong quá trình gọi API:", error);
+    }
+  });
+
+  const fetchExponential = async () => {
+    try {
+      const response = await fetch('/api/models/expo');
+      const result = await response.json();
+      if (result.success && result.data) {
+        setExponential(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching exponential data:', error);
+    }
+  };
 
   const getColor = (currentFill) => {
     if (currentFill >= 0 && currentFill < 20) {
@@ -76,25 +93,35 @@ function Dashboard() {
     return '#F5F5F5';
   };
 
-  useEffect(() => {
-    const fetchSVMData = async () => {
-      try {
-        const response = await fetch(`/api/models/svm/${fixedId}`);
-        const result = await response.json();
-        if (result.success && result.data) {
-          setSvmData(result.data);
-        } else {
-          throw new Error('No data found in the response');
-        }
-      } finally {
-        setLoading(false);
+  const fetchSVMData = async () => {
+    try {
+      const response = await fetch(`/api/models/svm/${fixedId}`);
+      const result = await response.json();
+      if (result.success && result.data) {
+        setSvmData(result.data);
+      } else {
+        throw new Error('No data found in the response');
       }
-    };
-    fetchSVMData();
-  }, []);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchWasteBinData();
+    const intervalId = setInterval(() => {
+      fetchWasteBinData(); // Gọi API fetchWasteBinData
+      fetchExponential(); // Gọi API fetchExponential
+      fetchSVMData(); // Gọi API fetchSVMData
+    }, 10000); // 10 giây
+
+    // Cleanup interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, [handleGetReport]);
+
+  useEffect(() => {
+    fetchWasteBinData(); // Gọi API fetchWasteBinData
+    fetchExponential(); // Gọi API fetchExponential
+    fetchSVMData(); // Gọi API fetchSVMDat
   }, []);
 
   const center = {
@@ -114,7 +141,7 @@ const chartData = [
 
 
   return (
-    <div className="p-8 bg-gradient-to-r from-blue-100 to-teal-100 min-h-screen">
+    <div className="justify-center p-8 bg-gradient-to-r from-blue-100 to-teal-100 min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
         <div className="flex items-center space-x-4">
@@ -132,33 +159,137 @@ const chartData = [
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mr-2 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m2 0H7a2 2 0 110-4h2a2 2 0 110 4h6zm4 4h2m0 0v2m0-2h-2"></path>
-            </svg>
-            Location Details
-          </h3>
-          <div className="space-y-2">
-            <p className="text-gray-700"><strong>Address:</strong> {wasteBinData ? wasteBinData.address : 'Loading...'}</p>
-            <p className="text-gray-700"><strong>Latitude:</strong> {wasteBinData ? wasteBinData.latitude : 'Loading...'}</p>
-            <p className="text-gray-700"><strong>Longitude:</strong> {wasteBinData ? wasteBinData.longitude : 'Loading...'}</p>
+          <h2 className="text-xl font-bold mb-4 text-center">Thông tin mô hình</h2>
+          <div className="flex space-x-6">
+            {/* Phần Địa chỉ và Tọa độ */}
+            <div className="flex flex-col space-y-4 w-full">
+              <div className="flex items-center space-x-2">
+                <svg width="50px" height="50px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <g transform="translate(0 -1028.4)">
+                      <rect height="20" width="14" y="1031.4" x="5" fill="#bdc3c7"/>
+                      <g transform="translate(0 2)">
+                      <g fill="#3498db">
+                        <rect transform="translate(0 1028.4)" height="3" width="2" y="3" x="7"/>
+                        <rect height="3" width="2" y="1031.4" x="11"/>
+                        <rect height="3" width="2" y="1031.4" x="15"/>
+                      </g>
+                      <g fill="#2980b9">
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="7"/>
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="11"/>
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="15"/>
+                      </g>
+                      </g>
+                      <g transform="translate(0 7)">
+                      <g fill="#3498db">
+                        <rect transform="translate(0 1028.4)" height="3" width="2" y="3" x="7"/>
+                        <rect height="3" width="2" y="1031.4" x="11"/>
+                        <rect height="3" width="2" y="1031.4" x="15"/>
+                      </g>
+                      <g fill="#2980b9">
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="7"/>
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="11"/>
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="15"/>
+                      </g>
+                      </g>
+                      <g transform="translate(0 12)">
+                      <g fill="#3498db">
+                        <rect transform="translate(0 1028.4)" height="3" width="2" y="3" x="7"/>
+                        <rect height="3" width="2" y="1031.4" x="11"/>
+                        <rect height="3" width="2" y="1031.4" x="15"/>
+                      </g>
+                      <g fill="#2980b9">
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="7"/>
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="11"/>
+                        <rect transform="translate(0 1028.4)" height="1" width="2" y="3" x="15"/>
+                      </g>
+                      </g>
+                      <g>
+                      <rect height="3" width="6" y="1048.4" x="7" fill="#e67e22"/>
+                      <rect height="1" width="6" y="1048.4" x="7" fill="#d35400"/>
+                      <rect height="3" width="1" y="1048.4" x="9" fill="#d35400"/>
+                      <rect height="2" width="2" y="1048.4" x="15" fill="#3498db"/>
+                      <rect height="1" width="2" y="1048.4" x="15" fill="#2980b9"/>
+                      </g>
+                      <path d="m4 1030.4h16l-2.667-2h-10.666l-2.667 2" fill="#bdc3c7"/>
+                      <rect height="1" width="16" y="1030.4" x="4" fill="#7f8c8d"/>
+                      <rect transform="translate(0 1028.4)" height="1" width="14" y="3" x="5" fill="#95a5a6"/>
+                    </g>
+                    </svg>
+                <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Địa chỉ:</strong> {wasteBinData ? wasteBinData.address : 'Loading...'}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <svg width="50px" height="50px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <g transform="translate(0 -1028.4)">
+                      <g>
+                      <path d="m23 12a11 11 0 1 1 -22 0 11 11 0 1 1 22 0z" transform="translate(0 1029.4)" fill="#95a5a6"/>
+                      <path d="m23 12a11 11 0 1 1 -22 0 11 11 0 1 1 22 0z" transform="translate(0 1028.4)" fill="#bdc3c7"/>
+                      <path d="m20 12a8.5 9 0 1 1 -17 0 8.5 9 0 1 1 17 0z" transform="matrix(1.0588 0 0 1 -.17647 1028.4)" fill="#3498db"/>
+                      <path d="m16 1033.4-6 7-2 9 6-7 2-9z" fill="#2980b9"/>
+                      <path d="m12 1031.4c-4.9706 0-9 4-9 9 0 0.1 0.0218 0.3 0.0312 0.5 0.2651-4.8 4.1698-8.5 8.9688-8.5s8.704 3.7 8.969 8.5c0.009-0.2 0.031-0.4 0.031-0.5 0-5-4.029-9-9-9z" fill="#2980b9"/>
+                      <path d="m14 1041.4-4-2 6-7z" fill="#e74c3c"/>
+                      <path d="m10 1039.4 4 2-6 7z" fill="#ecf0f1"/>
+                      <path d="m12 1029.4c-6.0751 0-11 4.9-11 11 0 6 4.9249 11 11 11 6.075 0 11-5 11-11 0-6.1-4.925-11-11-11zm0 2c4.971 0 9 4 9 9 0 4.9-4.029 9-9 9-4.9706 0-9-4.1-9-9 0-5 4.0294-9 9-9z" fill="#bdc3c7"/>
+                      </g>
+                      <path d="m16 4-4 8 2 1z" transform="translate(0 1028.4)" fill="#c0392b"/>
+                      <path d="m12 1039.4c-0.552 0-1 0.4-1 1h2c0-0.6-0.448-1-1-1z" fill="#bdc3c7"/>
+                      <path d="m12 12-4 8 6-7z" transform="translate(0 1028.4)" fill="#bdc3c7"/>
+                      <path d="m12 1041.4c0.552 0 1-0.5 1-1h-2c0 0.5 0.448 1 1 1z" fill="#7f8c8d"/>
+                    </g>
+                  </svg>
+                <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Tọa độ:</strong> {wasteBinData ? wasteBinData.latitude : 'Loading...'} - {wasteBinData ? wasteBinData.longitude : 'Loading...'}</p>
+              </div>
+            </div>
+
+            <div className="flex justify-center items-center">
+              <a 
+                href={`https://www.google.com/maps?q=${wasteBinData ? wasteBinData.latitude : ''},${wasteBinData ? wasteBinData.longitude : ''}`} 
+                target="_blank" 
+                className="inline-flex items-center justify-center px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
+              >
+                <svg width="50px" height="50px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                  <g transform="translate(0 -1028.4)">
+                    <path d="m8 1030.4 8 1v19l-8-1z" fill="#ecf0f1"/>
+                    <path d="m2 1031.4 6-1v19l-6 1z" fill="#bdc3c7"/>
+                    <path d="m16 1031.4 6-1v19l-6 1z" fill="#bdc3c7"/>
+                    <path d="m3 1032.4 5-1v17l-5 1z" fill="#27ae60"/>
+                    <path d="m8 1031.4 8 1v17l-8-1z" fill="#2ecc71"/>
+                    <path d="m13 1c-1.657 0-3 1.3432-3 3s1.343 3 3 3 3-1.3432 3-3-1.343-3-3-3zm0 2c0.552 0 1 0.4477 1 1s-0.448 1-1 1-1-0.4477-1-1 0.448-1 1-1z" transform="translate(0 1028.4)" fill="#c0392b"/>
+                    <path d="m21 1048.4-5 1v-17l5-1z" fill="#27ae60"/>
+                    <path d="m5.6875 1031.8-2.3125 0.5 4.625 4.9v-2.9l-2.3125-2.5z" fill="#f39c12"/>
+                    <path d="m21 1046.4-5 1v-6l5-3z" fill="#f39c12"/>
+                    <path d="m21 1048.4-5 1v-6l5-3z" fill="#2980b9"/>
+                    <path d="m8 1042.4 8-1v6l-8-1z" fill="#f1c40f"/>
+                    <path d="m8 1044.4 8-1v6l-8-1z" fill="#3498db"/>
+                    <path d="m3 1045.4 5-3v4l-5 1z" fill="#f39c12"/>
+                    <path d="m3 1047.4 5-3v4l-5 1z" fill="#2980b9"/>
+                    <path d="m8 8.8008v-2.8985l4 8.6597h-1.469z" transform="translate(0 1028.4)" fill="#f1c40f"/>
+                    <path d="m13 1028.4c-2.209 0-4 1.8-4 4 0 0.7 0.1908 1.3 0.5156 1.9 0.0539 0.1 0.1105 0.2 0.1719 0.3l3.3125 5.8 3.312-5.8c0.051-0.1 0.095-0.2 0.141-0.2l0.031-0.1c0.325-0.6 0.516-1.2 0.516-1.9 0-2.2-1.791-4-4-4zm0 2c1.105 0 2 0.9 2 2s-0.895 2-2 2-2-0.9-2-2 0.895-2 2-2z" fill="#e74c3c"/>
+                  </g>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mr-2 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v4M12 16v4m4-4h4m-4 0H8M4 12h4m4 4h4M4 4l16 16"></path>
-            </svg>
-            Last Update
-          </h3>
+          <h2 className="text-xl font-bold mb-4 text-center">Lần cập nhật gần nhất</h2>
           <div className="space-y-2">
-            <p className="text-gray-700"><strong>Last Updated:</strong> {wasteBinData ? new Date(wasteBinData.timestamp).toLocaleString() : 'Loading...'}</p>
+            <p className="text-4xl font-semibold text-center text-gray-700 mb-2">
+              {wasteBinData ? new Date(wasteBinData.timestamp).toLocaleString() : 'Loading...'}
+            </p>
+          </div>
+          <div className="mt-6 flex justify-center gap-4">
+            <button
+              className="rounded-lg bg-green-500 px-4 py-2 text-white"
+              onClick={handleGetReport}
+            >
+              Chi tiết
+            </button>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
-          <h3 className="text-xl font-semibold mb-6">Exponential Prediction</h3>
+          <h2 className="text-xl font-bold mb-4 text-center">Exponential Prediction</h2>
           {exponential.length > 0 ? (
             <ResponsiveContainer width="100%" height={550}>
               <LineChart data={chartData}>
@@ -167,9 +298,7 @@ const chartData = [
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                
                 <Line type="monotone" dataKey="percentage" stroke="#8884d8" activeDot={{ r: 8 }} />
-                
                 <BarChart data={chartData}>
                   <Bar 
                     dataKey="percentage" 
@@ -249,17 +378,31 @@ const chartData = [
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mr-2 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v4m0 0V4M4 12v4m4-4h4m4 0h4m-4 0h4"></path>
-            </svg>
-            Air Quality
-          </h3>
-          <div className="space-y-2">
-            <p className="text-gray-700"><strong>Air Quality Index:</strong> {wasteBinData ? wasteBinData.air_quality : 'Loading...'}</p>
-            {/* <p className="text-gray-600">{wasteBinData && wasteBinData.air_quality <= 0.5 ? "Good" : wasteBinData.air_quality <= 0.75 ? "Moderate" : "Poor"}</p> */}
-          </div>
+          {error && <p className="text-red-500">{error}</p>}
+          {showReportDetail ? (
+            <ReportDetail report={report} /> // Hiển thị ReportDetail nếu có báo cáo
+          ) : (
+            <p>Đang đợi dữ liệu...</p>
+          )}
         </div>
+
+{/* 
+        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
+          
+        </div>
+        
+        <div className="p-6 rounded-lg shadow-lg border-l-4 flex justify-center items-center">
+          <svg  width="100px" height="100px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <g transform="translate(0 -1028.4)">
+              <path d="m9.5 1033.4c-3.5899 0-6.5 2.9-6.5 6.5 0 0-0.0005 0 0 0.1-1.7839 0.9-3 2.7-3 4.9 0 3 2.4624 5.5 5.5 5.5h0.0312 13.219 0.25c2.761 0 5-2.3 5-5 0-2.1-1.297-3.9-3.125-4.7 0.071-0.2 0.125-0.5 0.125-0.8 0-2-1.567-3.5-3.5-3.5-0.798 0-1.536 0.2-2.125 0.7-1.043-2.2-3.282-3.7-5.875-3.7z" fill="#95a5a6"/>
+              <path d="m9.5 1032.4c-3.5899 0-6.5 2.9-6.5 6.5 0 0-0.0005 0 0 0.1-1.7839 0.9-3 2.7-3 4.9 0 3 2.4624 5.5 5.5 5.5h0.0312 13.219 0.25c2.761 0 5-2.3 5-5 0-2.1-1.297-3.9-3.125-4.7 0.071-0.2 0.125-0.5 0.125-0.8 0-2-1.567-3.5-3.5-3.5-0.798 0-1.536 0.2-2.125 0.7-1.043-2.2-3.282-3.7-5.875-3.7z" fill="#bdc3c7"/>
+              <path d="m12 1037.4c-2.4162 0-4.44 1.7-4.9062 4h1.6562c0.4449-1.4 1.732-2.5 3.281-2.5 0.938 0 1.79 0.4 2.407 1l-1.438 1.5h2.312 1.594 0.094v-4l-1.469 1.4c-0.907-0.9-2.151-1.4-3.531-1.4zm-5 6v4l1.4688-1.5c0.9068 0.9 2.1512 1.5 3.5312 1.5 2.416 0 4.44-1.8 4.906-4h-1.656c-0.445 1.4-1.732 2.4-3.281 2.4-0.938 0-1.79-0.4-2.4065-1l1.4375-1.4h-2.3125-1.5937-0.0938z" fill="#2980b9"/>
+            </g>
+          </svg>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
+          
+        </div> */}
 
       </div>
     </div>

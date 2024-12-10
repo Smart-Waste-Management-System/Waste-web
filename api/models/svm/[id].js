@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
-    if (req.method === 'POST') {
+    if (req.method === 'GET') {
       const response = await fetch(`http://14.225.255.120/models/svm/${id}`, {
-        method: 'POST',
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(req.body),
       });
