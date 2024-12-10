@@ -72,7 +72,7 @@ const BoxWindow = ({ dataEquipment }) => {
   const handleGetReport = useCallback(async () => {
     setError(""); // Xóa lỗi cũ trước khi gọi API
     try {
-      const response = await fetch(`/wastebin/reports/last/${action.id}`);
+      const response = await fetch(`/api/wastebin/${action.id}reports/last/`);
       if (response.ok) {
         const rs = await response.json();
         setReport(rs.data);
@@ -88,7 +88,7 @@ const BoxWindow = ({ dataEquipment }) => {
 
   const handleRemove = useCallback(async () => {
     try {
-      const response = await fetch(`/wastebin/${action.id}`, {
+      const response = await fetch(`/api/wastebin/${action.id}/remove`, {
         method: "DELETE",
       });
   

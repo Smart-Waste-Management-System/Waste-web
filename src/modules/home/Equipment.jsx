@@ -18,7 +18,7 @@ function Equipment() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/wastebin/info/all");
+        const response = await fetch("/api/wastebin/all");
         const data = await response.json();
         if (data && data.success && Array.isArray(data.data)) {
           dispatch(loadEquipment(data.data));
