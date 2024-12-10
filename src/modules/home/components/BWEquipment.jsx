@@ -70,7 +70,7 @@ const BoxWindow = ({ dataEquipment }) => {
   };
 
   const handleGetReport = useCallback(async () => {
-    setError(""); // Xóa lỗi cũ trước khi gọi API
+    setError(""); 
     try {
       const response = await fetch(`/api/wastebins/${action.id}/reports/last`);
       if (response.ok) {

@@ -66,7 +66,7 @@ function BoxWindow({ dataEmployee }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(employeeData)
       });
-
+      console.log(employeeData);
       if (response.ok) {
         setNewEmployee({ First_Name: "", Last_Name: "", Gender: "", Role: "", Phone: "", Password: "", Category: "", Email: "" });
         setActionDefault();
