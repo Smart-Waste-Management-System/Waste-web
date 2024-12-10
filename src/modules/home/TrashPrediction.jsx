@@ -22,7 +22,7 @@ function TrashPrediction() {
   // Fetch waste bin data including Weight and RemainingFill from the API
   const fetchWasteBinData = async () => {
     try {
-      const response = await fetch(`/api/wastebin/${fixedId}/info`);
+      const response = await fetch(`/api/wastebins/${fixedId}/info`);
       const data = await response.json();
       setWasteBinData(data.data);
       setCurrentFill(data.data.remaining_fill);
