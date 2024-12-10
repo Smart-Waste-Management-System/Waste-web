@@ -8,7 +8,7 @@ import EmployeeManagement from "./EmployeeManagement"; // Import the new compone
 import Area from "./Area";
 
 function Home() {
-  const [activeTab, setActiveTab] = useState("employees");
+  const [activeTab, setActiveTab] = useState("transaction");
 
   const renderContent = () => {
     switch (activeTab) {
