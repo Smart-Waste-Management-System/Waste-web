@@ -34,19 +34,16 @@ function Dashboard() {
 
   const handleGetReport = useCallback(async () => {
     setError(""); 
-    if (!fixedId) {
-      setError("ID không hợp lệ.");
-      console.error("ID không hợp lệ:", fixedId);
-      return; 
-    }
     try {
       const response = await fetch(`/api/wastebins/${fixedId}/reports/last`);
+      console.log(`/api/wastebins/${fixedId}/reports/last`);
       if (response.ok) {
         const rs = await response.json();
         setReport(rs.data);
+        setShowReportDetail(true)
       } else {
-        setError(`Không thể lấy báo cáo gần nhất. Mã lỗi: ${response.status}`);
-        console.error("Lỗi khi lấy báo cáo gần nhất:", response.status);
+        setError("Không thể lấy báo cáo gần nhất. Hãy thử lại sau!");
+        console.error("Lỗi khi lấy báo cáo gần nhất.");
       }
     } catch (error) {
       setError("Có lỗi xảy ra trong quá trình gọi API.");
