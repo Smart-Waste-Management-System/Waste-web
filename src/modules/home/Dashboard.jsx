@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { IconWasteBin } from "./assets/Icon";
+import { IconWasteBin, BinUnfill, BinHalfFill, BinFilled, IconRotten } from "./assets/Icon";
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'; // Import thêm ResponsiveContainer
@@ -115,7 +115,7 @@ function Dashboard() {
       fetchWasteBinData(); // Gọi API fetchWasteBinData
       fetchExponential(); // Gọi API fetchExponential
       fetchSVMData(); // Gọi API fetchSVMData
-    }, 10000); // 10 giây
+    }, 5000); // 10 giây
 
     // Cleanup interval when component unmounts
     return () => clearInterval(intervalId);
@@ -148,12 +148,17 @@ const chartData = [
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
         <div className="flex items-center space-x-4">
-            <IconWasteBin className="w-12 h-8 text-teal-500" />
+            {svmData === "Unfilled" && <BinUnfill />}
+            {svmData === "Half-Filled" && <BinHalfFill />}
+            {svmData === "Filled" && <BinFilled />}
             {wasteBinData ? (
               <div>
+                 {/* {wasteBinData.air_quality >= "10" && <IconRotten /> } */}
                 <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Cân nặng:</strong> {wasteBinData.weight} kg</p>
                 <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Còn trống:</strong> {wasteBinData.remaining_fill} %</p>
-                <p className="text-2xl font-semibold text-gray-700"><strong>H2S:</strong> {wasteBinData.air_quality}</p>
+                <p className="text-2xl font-semibold text-gray-700 mb-2">
+                  <strong>H2S:</strong> {wasteBinData.air_quality} 
+                </p>
               </div>
             ) : (
               <p className="text-xl font-semibold text-gray-600">Loading WasteBin data...</p>
@@ -247,9 +252,9 @@ const chartData = [
               <a 
                 href={`https://www.google.com/maps?q=${wasteBinData ? wasteBinData.latitude : ''},${wasteBinData ? wasteBinData.longitude : ''}`} 
                 target="_blank" 
-                className="inline-flex items-center justify-center px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
+                className="inline-flex flex-col items-center justify-center px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
               >
-                <svg width="50px" height="50px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                <svg width="60px" height="60px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
                   <g transform="translate(0 -1028.4)">
                     <path d="m8 1030.4 8 1v19l-8-1z" fill="#ecf0f1"/>
                     <path d="m2 1031.4 6-1v19l-6 1z" fill="#bdc3c7"/>
@@ -269,6 +274,8 @@ const chartData = [
                     <path d="m13 1028.4c-2.209 0-4 1.8-4 4 0 0.7 0.1908 1.3 0.5156 1.9 0.0539 0.1 0.1105 0.2 0.1719 0.3l3.3125 5.8 3.312-5.8c0.051-0.1 0.095-0.2 0.141-0.2l0.031-0.1c0.325-0.6 0.516-1.2 0.516-1.9 0-2.2-1.791-4-4-4zm0 2c1.105 0 2 0.9 2 2s-0.895 2-2 2-2-0.9-2-2 0.895-2 2-2z" fill="#e74c3c"/>
                   </g>
                 </svg>
+                <p>
+                </p>
               </a>
             </div>
           </div>
@@ -281,6 +288,12 @@ const chartData = [
               {wasteBinData ? new Date(wasteBinData.timestamp).toLocaleString() : 'Loading...'}
             </p>
           </div>
+          <h2 className="text-xl font-bold mb-4 text-center">Dự đoán sẽ đầy trong</h2>
+          <p className="text-4xl font-semibold text-center text-gray-700 mb-2">
+            {(wasteBinData?.day ?? 0)} : {(wasteBinData?.hour ?? 0)} : {(wasteBinData?.minute ?? 0)} : {(wasteBinData?.second ?? 0)}
+          </p>
+
+
           <div className="mt-6 flex justify-center gap-4">
             <button
               className="rounded-lg bg-green-500 px-4 py-2 text-white"
@@ -294,7 +307,7 @@ const chartData = [
         <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
           <h2 className="text-xl font-bold mb-4 text-center">Exponential Prediction</h2>
           {exponential.length > 0 ? (
-            <ResponsiveContainer width="100%" height={550}>
+            <ResponsiveContainer width="100%" height={500}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="time" />
@@ -361,7 +374,8 @@ const chartData = [
               <p className="text-center text-xl font-semibold">Loading...</p>
             ) : (
               <div className="flex flex-col items-center">
-                <h3 className="text-lg font-semibold">Current Bin Status:</h3>
+                <h3 className="text-lg font-semibold">Trạng thái thùng hiện tại</h3>
+                <h3 className="text-lg font-semibold">-</h3>
                 <div className="w-64 h-64">
                   <CircularProgressbar
                     value={100}
@@ -385,7 +399,7 @@ const chartData = [
           {showReportDetail ? (
             <ReportDetail report={report} /> // Hiển thị ReportDetail nếu có báo cáo
           ) : (
-            <p>Đang đợi dữ liệu...</p>
+            <p>Loading...</p>
           )}
         </div>
 

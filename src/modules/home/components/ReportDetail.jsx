@@ -19,7 +19,7 @@ const ReportDetail = ({ report }) => {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600">Địa chỉ:</span>
-            <span className="text-sm text-gray-800">{report.address}</span>
+            <span className="text-sm text-gray-800">{report.Address}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600">Chất lượng không khí:</span>
