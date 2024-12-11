@@ -10,12 +10,12 @@ const HomeContent = () => {
 
   useEffect(() => {
     // Load CSV data
-    Papa.parse('../../../public/Processed_Trash_Fill_Data.csv', {
+    Papa.parse('/Processed_Trash_Fill_Data.csv', {
       download: true,
       complete: (result) => {
         setData(result.data);
       },
-      header: true, // Use header from CSV file for column names
+      header: true,
     });
   }, []);
 
