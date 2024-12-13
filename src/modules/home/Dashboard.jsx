@@ -244,7 +244,10 @@ const chartData = [
                       <path d="m12 1041.4c0.552 0 1-0.5 1-1h-2c0 0.5 0.448 1 1 1z" fill="#7f8c8d"/>
                     </g>
                   </svg>
-                <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Tọa độ:</strong> {wasteBinData ? wasteBinData.latitude : 'Loading...'} - {wasteBinData ? wasteBinData.longitude : 'Loading...'}</p>
+                  <div className="flex flex-col items-lefft">
+                    <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Vĩ độ:</strong>   {wasteBinData ? wasteBinData.latitude : 'Loading...'}</p>
+                    <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Kinh độ:</strong>   {wasteBinData ? wasteBinData.longitude : 'Loading...'}</p>
+                  </div>
               </div>
             </div>
 
@@ -296,7 +299,7 @@ const chartData = [
 
           <div className="mt-6 flex justify-center gap-4">
             <button
-              className="rounded-lg bg-green-500 px-4 py-2 text-white"
+              className="rounded-lg bg-green-500 px-4 py-2 text-white text-xl font-semibold text-gray-700 mb-2"
               onClick={handleGetReport}
             >
               Chi tiết
@@ -399,7 +402,7 @@ const chartData = [
           {showReportDetail ? (
             <ReportDetail report={report} /> // Hiển thị ReportDetail nếu có báo cáo
           ) : (
-            <p>Loading...</p>
+            <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Loading...</strong></p>
           )}
         </div>
 

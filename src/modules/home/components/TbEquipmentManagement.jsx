@@ -63,7 +63,8 @@ function EquipmentTable(props) {
               <td className="py-2">{item.air_quality}</td>
               <td className="py-2">{`${item.latitude || "-"} - ${item.longitude || "-"}`}</td>
               <td className="py-2">{formatTimestamp(item.timestamp)}</td> {/* Format timestamp */}
-              <td className="py-2">{`${item.day || "-"} ngày ${item.hour || "-"} giờ ${item.minute || "-"} phút  ${item.minute || "-"} giây`}</td>
+
+              <td className="py-2">{`${item?.day ?? 0} ngày ${item?.hour ?? 0} giờ ${item?.minute ?? 0} phút  ${item?.minute ?? 0} giây`}</td>
               <td className="py-2">
                 <div className="flex flex-row items-center justify-center gap-2">
                   <button onClick={() => setAction({ id: item.id || item.ID, isRead: true })}>

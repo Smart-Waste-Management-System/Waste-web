@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const HomeContent = () => {
   const [data, setData] = useState([]);
-  const [chartType, setChartType] = useState('line'); // State to store the chart type (line or bar)
-  const [dateRange, setDateRange] = useState({ start: '2024-09-01 06:00:00', end: '2024-09-01 11:00:00' }); // Default date range
+  const [chartType, setChartType] = useState('line'); // State to store the chart type (line, bar, area, scatter, pie)
+  const [dateRange, setDateRange] = useState({ start: '2024-12-21 06:00:00', end: '2024-12-23 11:00:00' }); // Default date range
   const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
@@ -40,19 +40,20 @@ const HomeContent = () => {
 
   return (
     <div className="mx-auto p-6 bg-gray-50">
-      <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Dữ liệu thống kế thùng rác theo thời gian</h1>
+      <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Dữ liệu thống kê thùng rác theo thời gian</h1>
 
       {/* Options for chart type and date range */}
       <div className="flex justify-between mb-6">
         <div>
-          <label className="mr-2">Chart Type:</label>
+          <label className="mr-2">Loại biểu đồ:</label>
           <select onChange={handleChartTypeChange} value={chartType} className="p-2 border rounded">
-            <option value="line">Line Chart</option>
-            <option value="bar">Bar Chart</option>
+            <option value="line">Line</option>
+            <option value="bar">Bar</option>
+            <option value="area">Area</option>
           </select>
         </div>
         <div>
-          <label className="mr-2">Date Range:</label>
+          <label className="mr-2">Khoảng thời gian:</label>
           <input 
             type="datetime-local" 
             value={dateRange.start}
@@ -74,21 +75,25 @@ const HomeContent = () => {
           <table className="min-w-full table-auto">
             <thead className="bg-blue-300 text-sm font-bold text-black sticky top-0 z-10">
               <tr>
-                <th className="py-6 text-center">Timestamp</th>
-                <th className="py-6 text-center">Weight(kg)</th>
-                <th className="py-6 text-center">FilledLevel(%)</th>
-                <th className="py-6 text-center">AirQuality</th>
-                <th className="py-6 text-center">RemainingFill(%)</th>
+                <th className="py-6 text-center">Thời gian</th>
+                <th className="py-6 text-center">Trọng lượng (kg)</th>
+                <th className="py-6 text-center">Mức độ đầy (%)</th>
+                <th className="py-6 text-center">Chất lượng không khí</th>
+                <th className="py-6 text-center">Mức độ còn lại (%)</th>
+                <th className="py-6 text-center">Tốc độ lấp đầy (%)/(s)</th>  
+                <th className="py-6 text-center">Thời gian lấp đầy ước tính (s)</th>         
               </tr>
             </thead>
             <tbody>
               {filteredData.map((row, index) => (
                 <tr key={index} className="odd:bg-white even:bg-blue-100">
                   <td className="py-2 text-center">{row.Timestamp}</td>
-                  <td className="py-2 text-center">{row['Weight(kg)']}</td>
-                  <td className="py-2 text-center">{row['FilledLevel(%)']}</td>
+                  <td className="py-2 text-center">{parseFloat(row['Weight(kg)']).toFixed(2)}</td>
+                  <td className="py-2 text-center">{parseFloat(row['FilledLevel(%)']).toFixed(2)}</td>
                   <td className="py-2 text-center">{row['AirQuality']}</td>
-                  <td className="py-2 text-center">{row['RemainingFill(%)']}</td>
+                  <td className="py-2 text-center">{parseFloat(row['RemainingFill(%)']).toFixed(2)}</td>
+                  <td className="py-2 text-center">~{parseFloat(row['FillRate(%)_per_second']).toFixed(5)}</td>
+                  <td className="py-2 text-center">~{parseFloat(row['EstimatedTimeToFull(s)']).toFixed(5)}</td>                
                 </tr>
               ))}
             </tbody>
@@ -100,7 +105,7 @@ const HomeContent = () => {
       <div className="flex justify-between space-x-6">
         {/* Weight Chart */}
         <div className="w-full">
-          <h2 className="text-xl font-bold mb-4 text-center">Weight(kg)</h2>
+          <h2 className="text-xl font-bold mb-4 text-center">Cân nặng (kg)</h2>
           {filteredData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               {chartType === 'line' ? (
@@ -112,7 +117,7 @@ const HomeContent = () => {
                   <Legend />
                   <Line type="monotone" dataKey="Weight(kg)" stroke="#8884d8" activeDot={{ r: 8 }} />
                 </LineChart>
-              ) : (
+              ) : chartType === 'bar' ? (
                 <BarChart data={filteredData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="Timestamp" />
@@ -121,6 +126,15 @@ const HomeContent = () => {
                   <Legend />
                   <Bar dataKey="Weight(kg)" fill="#8884d8" />
                 </BarChart>
+              ) : (
+                <AreaChart data={filteredData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="Timestamp" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="Weight(kg)" stroke="#8884d8" fill="#8884d8" />
+                </AreaChart>
               )}
             </ResponsiveContainer>
           ) : (
@@ -130,7 +144,7 @@ const HomeContent = () => {
 
         {/* Filled Level Chart */}
         <div className="w-full">
-          <h2 className="text-xl font-bold mb-4 text-center">Filled Level (%)</h2>
+          <h2 className="text-xl font-bold mb-4 text-center">Mức độ đầy (%)</h2>
           {filteredData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               {chartType === 'line' ? (
@@ -142,7 +156,7 @@ const HomeContent = () => {
                   <Legend />
                   <Line type="monotone" dataKey="FilledLevel(%)" stroke="#82ca9d" activeDot={{ r: 8 }} />
                 </LineChart>
-              ) : (
+              ) : chartType === 'bar' ? (
                 <BarChart data={filteredData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="Timestamp" />
@@ -151,6 +165,15 @@ const HomeContent = () => {
                   <Legend />
                   <Bar dataKey="FilledLevel(%)" fill="#82ca9d" />
                 </BarChart>
+              ) : (
+                <AreaChart data={filteredData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="Timestamp" />
+                  <YAxis domain={[0, 100]} />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="FilledLevel(%)" stroke="#82ca9d" fill="#82ca9d" />
+                </AreaChart>
               )}
             </ResponsiveContainer>
           ) : (
@@ -160,7 +183,7 @@ const HomeContent = () => {
 
         {/* Air Quality Chart */}
         <div className="w-full">
-          <h2 className="text-xl font-bold mb-4 text-center">Air Quality</h2>
+          <h2 className="text-xl font-bold mb-4 text-center">Chất lượng không khí</h2>
           {filteredData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               {chartType === 'line' ? (
@@ -172,7 +195,7 @@ const HomeContent = () => {
                   <Legend />
                   <Line type="monotone" dataKey="AirQuality" stroke="#ff7300" activeDot={{ r: 8 }} />
                 </LineChart>
-              ) : (
+              ) : chartType === 'bar' ? (
                 <BarChart data={filteredData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="Timestamp" />
@@ -181,6 +204,15 @@ const HomeContent = () => {
                   <Legend />
                   <Bar dataKey="AirQuality" fill="#ff7300" />
                 </BarChart>
+              ) : (
+                <AreaChart data={filteredData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="Timestamp" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="AirQuality" stroke="#ff7300" fill="#ff7300" />
+                </AreaChart>
               )}
             </ResponsiveContainer>
           ) : (
