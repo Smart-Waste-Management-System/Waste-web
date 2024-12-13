@@ -314,7 +314,7 @@ const chartData = [
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="time" />
-                <YAxis />
+                <YAxis domain={[0, 100]}/>
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="percentage" stroke="#8884d8" activeDot={{ r: 8 }} />
