@@ -2,7 +2,7 @@ import React from "react";
 import { IconDocument, IconHammer, IconHome, IconUser, IconArea } from "../assets/Icon";
 
 const tabs = [
-  { id: "home", icon: <IconHome />, title: "Biểu đồ" },
+  { id: "home", icon: <IconHome />, title: "Thống kê" },
   { id: "employees", icon: <IconUser />, title: "Nhân sự" },
   { id: "transaction", icon: <IconArea />, title: "Model" },
   { id: "equipment", icon: <IconHammer />, title: "Thiết Bị" },

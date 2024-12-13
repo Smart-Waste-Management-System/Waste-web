@@ -45,7 +45,7 @@ function Home() {
                 <span className="absolute left-2/4 top-3/4 block w-full -translate-x-2/4 bg-white md:h-[2px] lg:h-[3px]"></span>
               </div>
               <h1 className="block text-xl font-black italic text-white md:hidden lg:block">
-                DashBoard KLTN ManhTu
+                Admin DashBoard
               </h1>
             </div>
 
