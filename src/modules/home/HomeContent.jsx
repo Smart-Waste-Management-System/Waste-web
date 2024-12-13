@@ -40,12 +40,12 @@ const HomeContent = () => {
 
   return (
     <div className="mx-auto p-6 bg-gray-50">
-      <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Dữ liệu thống kê thùng rác theo thời gian</h1>
+      <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6"><strong>Dữ liệu thống kê thùng rác theo thời gian</strong></h1>
 
       {/* Options for chart type and date range */}
       <div className="flex justify-between mb-6">
         <div>
-          <label className="mr-2">Loại biểu đồ:</label>
+          <label className="font-bold mb-4 text-center">Loại biểu đồ: </label>
           <select onChange={handleChartTypeChange} value={chartType} className="p-2 border rounded">
             <option value="line">Line</option>
             <option value="bar">Bar</option>
@@ -53,7 +53,7 @@ const HomeContent = () => {
           </select>
         </div>
         <div>
-          <label className="mr-2">Khoảng thời gian:</label>
+          <label className="font-bold mb-4 text-center">Khoảng thời gian: </label>
           <input 
             type="datetime-local" 
             value={dateRange.start}
@@ -112,7 +112,7 @@ const HomeContent = () => {
                 <LineChart data={filteredData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="Timestamp" />
-                  <YAxis />
+                  <YAxis domain={[0, 20]}/>
                   <Tooltip />
                   <Legend />
                   <Line type="monotone" dataKey="Weight(kg)" stroke="#8884d8" activeDot={{ r: 8 }} />
@@ -121,7 +121,7 @@ const HomeContent = () => {
                 <BarChart data={filteredData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="Timestamp" />
-                  <YAxis />
+                  <YAxis domain={[0, 20]}/>
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="Weight(kg)" fill="#8884d8" />
@@ -130,7 +130,7 @@ const HomeContent = () => {
                 <AreaChart data={filteredData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="Timestamp" />
-                  <YAxis />
+                  <YAxis domain={[0, 20]}/>
                   <Tooltip />
                   <Legend />
                   <Area type="monotone" dataKey="Weight(kg)" stroke="#8884d8" fill="#8884d8" />
