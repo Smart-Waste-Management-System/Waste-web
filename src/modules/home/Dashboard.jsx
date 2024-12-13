@@ -53,7 +53,7 @@ function Dashboard() {
   
   const fetchExponential = async () => {
     try {
-      const response = await fetch('/api/models/expo');
+      const response = await fetch(`/api/models/expo/${fixedId}`);
       const result = await response.json();
       if (result.success && result.data) {
         setExponential(result.data);
