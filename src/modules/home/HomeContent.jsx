@@ -10,7 +10,7 @@ const HomeContent = () => {
 
   useEffect(() => {
     // Load CSV data
-    Papa.parse('/Processed_Trash_Fill_Data.csv', {
+    Papa.parse('/Processed_Trash_Fill_Data_Updated.csv', {
       download: true,
       complete: (result) => {
         setData(result.data);
