@@ -288,7 +288,7 @@ const chartData = [
           <h2 className="text-xl font-bold mb-4 text-center">Lần cập nhật gần nhất</h2>
           <div className="space-y-2">
             <p className="text-4xl font-semibold text-center text-gray-700 mb-2">
-              {wasteBinData ? new Date(wasteBinData.timestamp).toLocaleString() : 'Loading...'}
+              {wasteBinData ? wasteBinData.timestamp : 'Loading...'}
             </p>
           </div>
           <h2 className="text-xl font-bold mb-4 text-center">Dự đoán sẽ đầy trong</h2>
