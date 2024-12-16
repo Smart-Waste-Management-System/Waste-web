@@ -168,13 +168,14 @@ function Test() {
 
 
       {/* Table for Bin Status Rules */}
-      <div className="min-w-full p-6 bg-gray-50">
-        <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6"><strong>Bảng quy ước</strong></h1>
+      <div className="p-6 bg-gray-50 w-[80%] mx-auto">
+      {/* <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6"><strong>Bảng quy ước</strong></h1> */}
         <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200 mb-6">
           <div className="overflow-y-auto max-h-[500px]">
             <table className="min-w-full table-auto">
               <thead className="bg-blue-300 text-sm font-bold text-black sticky top-0 z-10">
                 <tr>
+                  <th className="py-2 text-center">Case</th>
                   <th className="py-2 text-left">Remaining Fill (%)</th>
                   <th className="py-2 text-left">Weight (kg)</th>
                   <th className="py-2 text-left">Bin Status</th>
@@ -182,46 +183,55 @@ function Test() {
               </thead>
               <tbody>
                 <tr>
+                  <td className="py-2 text-center">Case 1</td>
                   <td className="py-2 text-left">0% - 20% (ít khoảng trống)</td>
                   <td className="py-2 text-left">0kg - 7kg (nhẹ)</td>
                   <td className="py-2 text-left">Unfilled</td>
                 </tr>
                 <tr className="bg-blue-100">
+                  <td className="py-2 text-center">Case 2</td>
                   <td className="py-2 text-left">0% - 20% (ít khoảng trống)</td>
                   <td className="py-2 text-left">7kg - 14kg (trung bình)</td>
                   <td className="py-2 text-left">Unfilled</td>
                 </tr>
                 <tr>
+                  <td className="py-2 text-center">Case 3</td>
                   <td className="py-2 text-left">0% - 20% (ít khoảng trống)</td>
                   <td className="py-2 text-left">14kg - 20kg (nặng)</td>
                   <td className="py-2 text-left">Half-Filled</td>
                 </tr>
                 <tr className="bg-blue-100">
+                  <td className="py-2 text-center">Case 4</td>
                   <td className="py-2 text-left">20% - 80% (vừa phải)</td>
                   <td className="py-2 text-left">0kg - 7kg (nhẹ)</td>
                   <td className="py-2 text-left">Unfilled</td>
                 </tr>
                 <tr>
+                  <td className="py-2 text-center">Case 5</td>
                   <td className="py-2 text-left">20% - 80% (vừa phải)</td>
                   <td className="py-2 text-left">7kg - 14kg (trung bình)</td>
                   <td className="py-2 text-left">Half-Filled</td>
                 </tr>
                 <tr className="bg-blue-100">
+                  <td className="py-2 text-center">Case 6</td>
                   <td className="py-2 text-left">20% - 80% (vừa phải)</td>
                   <td className="py-2 text-left">14kg - 20kg (nặng)</td>
                   <td className="py-2 text-left">Filled</td>
                 </tr>
                 <tr>
+                  <td className="py-2 text-center">Case 7</td>
                   <td className="py-2 text-left">80% - 100% (nhiều khoảng trống)</td>
                   <td className="py-2 text-left">0kg - 7kg (nhẹ)</td>
                   <td className="py-2 text-left">Half-Filled</td>
                 </tr>
                 <tr className="bg-blue-100">
+                  <td className="py-2 text-center">Case 8</td>
                   <td className="py-2 text-left">80% - 100% (nhiều khoảng trống)</td>
                   <td className="py-2 text-left">7kg - 14kg (trung bình)</td>
                   <td className="py-2 text-left">Filled</td>
                 </tr>
                 <tr>
+                  <td className="py-2 text-center">Case 9</td>
                   <td className="py-2 text-left">80% - 100% (nhiều khoảng trống)</td>
                   <td className="py-2 text-left">14kg - 20kg (nặng)</td>
                   <td className="py-2 text-left">Filled</td>
