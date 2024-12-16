@@ -6,6 +6,8 @@ import Equipment from "./Equipment"; // Placeholder
 import DashBoard from "./Dashboard"; // Placeholder
 import EmployeeManagement from "./EmployeeManagement"; // Import the new component
 import Area from "./Area";
+import Test from "./Test"; // Import the new component
+
 
 function Home() {
   const [activeTab, setActiveTab] = useState("home");
@@ -22,6 +24,8 @@ function Home() {
         return <DashBoard />;
       case "area":
         return <Area />;
+      case "test":
+        return <Test />;
       default:
         return null;
     }
