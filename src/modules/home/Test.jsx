@@ -73,7 +73,7 @@ function Test() {
   };
 
   return (
-    <div className="flex flex-col gap-3 p-6 bg-gray-50">
+    <div className="max-h-[500px] overflow-y-auto justify-center p-8 bg-gradient-to-r from-blue-100 to-teal-100 min-h-screen">
       <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6"><strong>Biểu đồ phân loại</strong></h1>
 
       <div>
@@ -94,81 +94,81 @@ function Test() {
 
       {/* Charts */}
       <div className="flex gap-5 min-w-full p-6 bg-white rounded-md shadow-inner justify-center items-center">
-  {/* Scatter Chart */}
-  <ScatterChart
-    width={1000}
-    height={300} // Reduced height
-    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-  >
-    <CartesianGrid />
-    <XAxis
-      type="number"
-      dataKey="remainingFill"
-      name="Remaining Fill (%)"
-      unit="%"
-      domain={[25, 100]}
-    />
-    <YAxis
-      type="number"
-      dataKey="weight"
-      name="Weight (kg)"
-      unit="kg"
-      domain={[0, 20]}
-    />
-    <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-    <Legend />
+      {/* Scatter Chart */}
+      <ScatterChart
+        width={800}
+        height={300} // Reduced height
+        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+      >
+        <CartesianGrid />
+        <XAxis
+          type="number"
+          dataKey="remainingFill"
+          name="Remaining Fill (%)"
+          unit="%"
+          domain={[25, 100]}
+        />
+        <YAxis
+          type="number"
+          dataKey="weight"
+          name="Weight (kg)"
+          unit="kg"
+          domain={[0, 20]}
+        />
+        <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+        <Legend />
 
-    {/* Scatter Points with Colors */}
-    <Scatter
-      name="Unfilled"
-      data={filteredData.filter((d) => d.binStatus === "Unfilled")}
-      fill="#8884d8"
-    />
-    <Scatter
-      name="Half-Filled"
-      data={filteredData.filter((d) => d.binStatus === "Half-Filled")}
-      fill="#82ca9d"
-    />
-    <Scatter
-      name="Filled"
-      data={filteredData.filter((d) => d.binStatus === "Filled")}
-      fill="#ff7300"
-    />
-  </ScatterChart>
+        {/* Scatter Points with Colors */}
+        <Scatter
+          name="Unfilled"
+          data={filteredData.filter((d) => d.binStatus === "Unfilled")}
+          fill="#8884d8"
+        />
+        <Scatter
+          name="Half-Filled"
+          data={filteredData.filter((d) => d.binStatus === "Half-Filled")}
+          fill="#82ca9d"
+        />
+        <Scatter
+          name="Filled"
+          data={filteredData.filter((d) => d.binStatus === "Filled")}
+          fill="#ff7300"
+        />
+      </ScatterChart>
 
-  {/* Pie Chart */}
-  <PieChart width={350} height={350}> {/* Adjusted size */}
-    <Pie
-      data={[
-        {
-          name: "Unfilled",
-          value: filteredData.filter((d) => d.binStatus === "Unfilled").length,
-        },
-        {
-          name: "Half-Filled",
-          value: filteredData.filter((d) => d.binStatus === "Half-Filled").length,
-        },
-        {
-          name: "Filled",
-          value: filteredData.filter((d) => d.binStatus === "Filled").length,
-        },
-      ]}
-      cx="50%"
-      cy="50%"
-      outerRadius={100} // Adjusted radius
-      label
-    >
-      {COLORS.map((color, index) => (
-        <Cell key={`cell-${index}`} fill={color} />
-      ))}
-    </Pie>
-    <Tooltip />
-  </PieChart>
-</div>
+      {/* Pie Chart */}
+      <PieChart width={350} height={350}> {/* Adjusted size */}
+        <Pie
+          data={[
+            {
+              name: "Unfilled",
+              value: filteredData.filter((d) => d.binStatus === "Unfilled").length,
+            },
+            {
+              name: "Half-Filled",
+              value: filteredData.filter((d) => d.binStatus === "Half-Filled").length,
+            },
+            {
+              name: "Filled",
+              value: filteredData.filter((d) => d.binStatus === "Filled").length,
+            },
+          ]}
+          cx="50%"
+          cy="50%"
+          outerRadius={100} // Adjusted radius
+          label
+        >
+          {COLORS.map((color, index) => (
+            <Cell key={`cell-${index}`} fill={color} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </div>
 
 
       {/* Table for Bin Status Rules */}
-      <div className="p-6 bg-gray-50 w-[80%] mx-auto">
+      <div className="p-6 bg-gray-50 w-[100%] mx-auto">
       {/* <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6"><strong>Bảng quy ước</strong></h1> */}
         <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200 mb-6">
           <div className="overflow-y-auto max-h-[500px]">

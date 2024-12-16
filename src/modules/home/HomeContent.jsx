@@ -39,7 +39,7 @@ const HomeContent = () => {
   };
 
   return (
-    <div className="mx-auto p-6 bg-gray-50">
+    <div className="max-h-[500px] overflow-y-auto justify-center p-8 bg-gradient-to-r from-blue-100 to-teal-100 min-h-screen">
       <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6"><strong>Dữ liệu thống kê thùng rác theo thời gian</strong></h1>
 
       {/* Options for chart type and date range */}
