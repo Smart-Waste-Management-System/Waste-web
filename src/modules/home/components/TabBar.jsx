@@ -1,15 +1,13 @@
 import React from "react";
-import { IconDocument, IconHammer, IconHome, IconUser, IconArea, IconRotten } from "../assets/Icon";
+import { IconDocument, IconHammer, IconHaHa, IconHome, IconUser, IconArea, IconRotten } from "../assets/Icon";
 
 const tabs = [
   { id: "home", icon: <IconHome />, title: "Thống kê" },
   { id: "employees", icon: <IconUser />, title: "Nhân sự" },
-  { id: "transaction", icon: <IconArea />, title: "Model" },
+  { id: "transaction", icon: <IconHaHa />, title: "Model" },
   { id: "equipment", icon: <IconHammer />, title: "Thiết Bị" },
   { id: "area", icon: <IconDocument />, title: "Báo Cáo" },
   { id: "test", icon: <IconRotten />, title: "Biểu đồ" },
-  
-
 ];
 
 function TabBar({ activeTab, setActiveTab }) {
