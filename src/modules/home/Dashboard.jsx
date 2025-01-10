@@ -4,6 +4,8 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'; // Import thêm ResponsiveContainer
 import ReportDetail from "./components/ReportDetail"; // Giả sử bạn đã có component ReportDetail
+import Modal from './components/Modal'; // Import modal component
+
 
 
 function Dashboard() {
@@ -16,7 +18,8 @@ function Dashboard() {
   const [currentFill, setCurrentFill] = useState('');
   const [weight, setWeight] = useState('');
   const [showReportDetail, setShowReportDetail] = useState(false); // State để hiển thị báo cáo chi tiết
-
+  const [unchangedCount, setUnchangedCount] = useState(0); // Đếm số lần dữ liệu không thay đổi
+  const [connectionStatus, setConnectionStatus] = useState(null); // Trạng thái kết nối
 
   const fixedId = '0193859c-1606-7a06-8d73-a0b456a33b3a';
 
@@ -24,13 +27,33 @@ function Dashboard() {
     try {
       const response = await fetch(`/api/wastebins/${fixedId}/info`);
       const data = await response.json();
-      setWasteBinData(data.data);
-      setCurrentFill(data.data.remaining_fill);
-      setWeight(data.data.weight); 
+
+      if (data.data) {
+        // Kiểm tra dữ liệu có thay đổi không
+        if (JSON.stringify(wasteBinData) === JSON.stringify(data.data)) {
+          setUnchangedCount((prev) => prev + 1);
+        } else {
+          setUnchangedCount(0); // Reset nếu dữ liệu thay đổi
+        }
+
+        setWasteBinData(data.data);
+      }
     } catch (error) {
       console.error('Error fetching WasteBin data:', error);
     }
   };
+
+  // Lắng nghe sự thay đổi của unchangedCount
+  useEffect(() => {
+    if (unchangedCount >= 5) {
+      setConnectionStatus('disconnected'); // Hiển thị modal "Thiết bị đã ngắt kết nối"
+      const timeout = setTimeout(() => {
+        setConnectionStatus('offline'); // Sau 10 giây, chuyển sang "Thiết bị đã tắt, đang offline"
+      }, 10000);
+
+      return () => clearTimeout(timeout); // Dọn dẹp timeout
+    }
+  }, [unchangedCount]);
 
   function formatUTCDate(timestamp) {
     const date = new Date(timestamp); // Tạo đối tượng Date từ timestamp
@@ -439,7 +462,19 @@ const chartData = [
         </div> */}
 
       </div>
+      {connectionStatus && (
+        <Modal
+          title={connectionStatus === 'disconnected' ? 'Thông báo' : 'Cảnh báo'}
+          message={
+            connectionStatus === 'disconnected'
+              ? 'Thiết bị đã ngắt kết nối'
+              : 'Thiết bị đã tắt, đang offline'
+          }
+          onClose={() => setConnectionStatus(null)} // Đóng modal
+        />
+      )}
     </div>
+    
   );
 }
 
