@@ -4,8 +4,6 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'; // Import thêm ResponsiveContainer
 import ReportDetail from "./components/ReportDetail"; // Giả sử bạn đã có component ReportDetail
-import Modal from './components/Modal'; // Import modal component
-
 
 
 function Dashboard() {
@@ -18,8 +16,9 @@ function Dashboard() {
   const [currentFill, setCurrentFill] = useState('');
   const [weight, setWeight] = useState('');
   const [showReportDetail, setShowReportDetail] = useState(false); // State để hiển thị báo cáo chi tiết
-  const [unchangedCount, setUnchangedCount] = useState(0); // Đếm số lần dữ liệu không thay đổi
-  const [connectionStatus, setConnectionStatus] = useState(null); // Trạng thái kết nối
+  const [previousFill, setPreviousFill] = useState(null); // Lưu trữ giá trị currentFill trước đó
+  const [alertMessage, setAlertMessage] = useState(""); // Thông báo lỗi nếu thiết bị ngắt kết nối
+
 
   const fixedId = '0193859c-1606-7a06-8d73-a0b456a33b3a';
 
@@ -28,14 +27,19 @@ function Dashboard() {
       const response = await fetch(`/api/wastebins/${fixedId}/info`);
       const data = await response.json();
 
-      if (data.data) {
-        // Kiểm tra dữ liệu có thay đổi không
-        if (JSON.stringify(wasteBinData) === JSON.stringify(data.data)) {
-          setUnchangedCount((prev) => prev + 1);
+      if (data && data.data) {
+        const newFill = data.data.remaining_fill;
+
+        // Kiểm tra nếu giá trị currentFill không thay đổi
+        if (newFill === currentFill) {
+          setAlertMessage("Thiết bị đã ngắt kết nối!");
         } else {
-          setUnchangedCount(0); // Reset nếu dữ liệu thay đổi
+          setAlertMessage(""); // Xóa thông báo nếu giá trị thay đổi
         }
 
+        // Cập nhật giá trị currentFill và previousFill
+        setPreviousFill(currentFill);
+        setCurrentFill(newFill);
         setWasteBinData(data.data);
       }
     } catch (error) {
@@ -43,17 +47,6 @@ function Dashboard() {
     }
   };
 
-  // Lắng nghe sự thay đổi của unchangedCount
-  useEffect(() => {
-    if (unchangedCount >= 5) {
-      setConnectionStatus('disconnected'); // Hiển thị modal "Thiết bị đã ngắt kết nối"
-      const timeout = setTimeout(() => {
-        setConnectionStatus('offline'); // Sau 10 giây, chuyển sang "Thiết bị đã tắt, đang offline"
-      }, 10000);
-
-      return () => clearTimeout(timeout); // Dọn dẹp timeout
-    }
-  }, [unchangedCount]);
 
   function formatUTCDate(timestamp) {
     const date = new Date(timestamp); // Tạo đối tượng Date từ timestamp
@@ -147,14 +140,14 @@ function Dashboard() {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      fetchWasteBinData(); // Gọi API fetchWasteBinData
+      fetchWasteBinData(); // Gọi API mỗi 5 giây
       fetchExponential(); // Gọi API fetchExponential
       fetchSVMData(); // Gọi API fetchSVMData
     }, 5000); // 10 giây
 
     // Cleanup interval when component unmounts
     return () => clearInterval(intervalId);
-  }, [handleGetReport]);
+  }, [currentFill]);
 
   useEffect(() => {
     fetchWasteBinData(); // Gọi API fetchWasteBinData
@@ -182,23 +175,35 @@ const chartData = [
     <div className="max-h-[1000px] overflow-y-auto justify-center p-8 bg-gradient-to-r from-blue-100 to-teal-100 min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
-        <div className="flex items-center space-x-4">
-            {svmData === "Unfilled" && <BinUnfill />}
-            {svmData === "Half-Filled" && <BinHalfFill />}
-            {svmData === "Filled" && <BinFilled />}
-            {wasteBinData ? (
-              <div>
-                 {/* {wasteBinData.air_quality >= "10" && <IconRotten /> } */}
-                <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Cân nặng:</strong> {wasteBinData.weight} kg</p>
-                <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Còn trống:</strong> {wasteBinData.remaining_fill} %</p>
-                <p className="text-2xl font-semibold text-gray-700 mb-2">
-                  <strong>H2S:</strong> {wasteBinData.air_quality} 
-                </p>
-              </div>
+      <div className="flex items-center space-x-4">
+        {alertMessage ? (
+            <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
+               <div className="mt-4 p-6 bg-red-100 text-red-800 rounded-lg border border-red-500 shadow-lg text-center">
+              <h1 className="text-5xl font-bold">⚠️ Cảnh báo:</h1>
+              <p className="text-3xl font-semibold">{alertMessage}</p>
+            </div>           
+          </div>
+          ) : (
+            wasteBinData ? (
+              <>
+                {svmData === "Unfilled" && <BinUnfill />}
+                {svmData === "Half-Filled" && <BinHalfFill />}
+                {svmData === "Filled" && <BinFilled />}
+                <div>
+                  {/* {wasteBinData.air_quality >= "10" && <IconRotten /> } */}
+                  <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Cân nặng:</strong> {wasteBinData.weight} kg</p>
+                  <p className="text-2xl font-semibold text-gray-700 mb-2"><strong>Còn trống:</strong> {wasteBinData.remaining_fill} %</p>
+                  <p className="text-2xl font-semibold text-gray-700 mb-2">
+                    <strong>H2S:</strong> {wasteBinData.air_quality} 
+                  </p>
+                </div>
+              </>
             ) : (
               <p className="text-xl font-semibold text-gray-600">Loading WasteBin data...</p>
-            )}
-          </div>
+            )
+          )}
+          
+      </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
@@ -462,19 +467,7 @@ const chartData = [
         </div> */}
 
       </div>
-      {connectionStatus && (
-        <Modal
-          title={connectionStatus === 'disconnected' ? 'Thông báo' : 'Cảnh báo'}
-          message={
-            connectionStatus === 'disconnected'
-              ? 'Thiết bị đã ngắt kết nối'
-              : 'Thiết bị đã tắt, đang offline'
-          }
-          onClose={() => setConnectionStatus(null)} // Đóng modal
-        />
-      )}
     </div>
-    
   );
 }
 
