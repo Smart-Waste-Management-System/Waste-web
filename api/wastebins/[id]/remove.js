@@ -2,7 +2,7 @@ export default async function handler(req, res) {
     const { id } = req.query; // Lấy param từ URL
 
     if (req.method === 'DELETE') {
-      const response = await fetch(`http://14.225.255.120/wastebins/${id}/remove`, {
+      const response = await fetch(`http://203.145.47.225:8080/wastebins/${id}/remove`, {
         method: 'DELETE',
       });
   

@@ -2,7 +2,7 @@ export default async function handler(req, res) {
     const { id } = req.query;
 
     if (req.method === 'GET') {
-      const response = await fetch(`http://14.225.255.120/reports/last/${id}`);
+      const response = await fetch(`http://203.145.47.225:8080/reports/last/${id}`);
       const data = await response.json();
   
       res.status(response.status).json(data);

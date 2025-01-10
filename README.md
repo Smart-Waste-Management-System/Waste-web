@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const { id } = req.query;
   
     if (req.method === 'DELETE') {
-      const response = await fetch(`http://14.225.255.120/reports/${id}/remove`, {
+      const response = await fetch(`http://203.145.47.225:8080/reports/${id}/remove`, {
         method: 'DELETE',
       });
   

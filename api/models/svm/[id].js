@@ -3,7 +3,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const response = await fetch(`http://14.225.255.120/models/svm/${id}`, {
+      const response = await fetch(`http://203.145.47.225:8080/models/svm/${id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
