@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loadArea } from "../../store/areaManagerSlice";
 import { useAction } from "./components/ActionContext";
 
-
+// 123456
 function Area() {
   const { dataArea } = useSelector((state) => state.area_manager);
   const { action, setAction } = useAction();
