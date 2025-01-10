@@ -28,18 +28,18 @@ function Dashboard() {
       const data = await response.json();
 
       if (data && data.data) {
-        const newFill = data.data.remaining_fill;
+        const newFill = data.data.weight;
 
         // Kiểm tra nếu giá trị currentFill không thay đổi
-        if (newFill === currentFill) {
+        if (newFill === weight) {
           setAlertMessage("Thiết bị đã ngắt kết nối!");
         } else {
           setAlertMessage(""); // Xóa thông báo nếu giá trị thay đổi
         }
 
         // Cập nhật giá trị currentFill và previousFill
-        setPreviousFill(currentFill);
-        setCurrentFill(newFill);
+        setPreviousFill(weight);
+        setWeight(newFill);
         setWasteBinData(data.data);
       }
     } catch (error) {
@@ -143,11 +143,11 @@ function Dashboard() {
       fetchWasteBinData(); // Gọi API mỗi 5 giây
       fetchExponential(); // Gọi API fetchExponential
       fetchSVMData(); // Gọi API fetchSVMData
-    }, 5000); // 10 giây
+    }, 10000); // 10 giây
 
     // Cleanup interval when component unmounts
     return () => clearInterval(intervalId);
-  }, [currentFill]);
+  }, [weight]);
 
   useEffect(() => {
     fetchWasteBinData(); // Gọi API fetchWasteBinData
